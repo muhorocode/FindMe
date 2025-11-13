@@ -1,26 +1,28 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
+from auth import auth_bp  # Import our authentication routes
 
-app=Flask(__name__)
+# Create the main Flask app
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'findme-secret-key-2024'
 
+# Allow frontend to communicate with backend
+CORS(app)
+
+# Register our authentication routes with the app
+app.register_blueprint(auth_bp)
+
+# Simple home route to check if API is working
 @app.route('/')
 def home():
-    return jsonify({
-        "message":"FindMe- Missing Persons Reporting API",
-        "description":"Community-driven platform for reporting and tracking missing persons",
-        "endpoints":{
-            "health":"/api/health",
-            "missing_persons":"/api/missing",
-            "specific_person":"/api/missing/<id>"
-        }
-    })
+    return jsonify({'message': 'FindMe API is up and running! 🚀'})
 
+# Health check route for monitoring
 @app.route('/api/health')
 def health_check():
-    return jsonify({
-        "status":"healthy",
-        "database":"not connected yet",
-        "message":"API is running"
-    })
+    return jsonify({'status': 'healthy', 'service': 'FindMe API'})
 
-if __name__=='__main__':
+# Start the server
+if __name__ == '__main__':
+    print("Starting FindMe server...")
     app.run(debug=True, port=5000)
