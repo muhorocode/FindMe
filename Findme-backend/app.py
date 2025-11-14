@@ -6,7 +6,7 @@ import os
 # Import configuration and database
 from config import config
 from models.missing_person import db
-# from auth import auth_bp  # Authentication routes (when available)
+from auth import auth_bp  # Your authentication routes
 
 def create_app(config_name='development'):
     app = Flask(__name__)
@@ -19,16 +19,14 @@ def create_app(config_name='development'):
     db.init_app(app)  # Initialize SQLAlchemy
     migrate = Migrate(app, db)  # Initialize flask-migrate
     
-    # Register authentication routes (uncomment when auth module ready)
-    # app.register_blueprint(auth_bp)
-    
+    # Register your authentication routes
+    app.register_blueprint(auth_bp)
+
     # Create all database tables
     with app.app_context():
         db.create_all()
 
-    # Register routes
-
-
+    # Routes
     @app.route('/')
     def home():
         return jsonify({
@@ -54,7 +52,7 @@ def create_app(config_name='development'):
         return jsonify({
             "status": "healthy",
             "database": db_status,
-            "authentication": "JWT system ready",
+            "authentication": "JWT system active",
             "message": "API is running with authentication"
         })
 
