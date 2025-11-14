@@ -26,17 +26,17 @@ FindMe is a full-stack web application that enables community members to report 
 
 ## 👥 Team Roles & Responsibilities
 
-### 👤 Person 1: Backend Lead & Authentication
-**Branch:** `person1-dev` → `dev` → `main`
+### 👤 Person 1: Demestrine - Backend Lead & Authentication
+**Branch:** `demestrine-dev` → `dev` → `main`
 
 **Responsibilities:**
-- Flask server setup and project structure
-- User authentication system (register/login/logout)
-- JWT token management
-- Password hashing (bcrypt)
-- User model and relationships
+1. Flask server and project structure setup
+2. User authentication system (register/login/logout)
+3. JWT token management
+4. Password hashing and security (bcrypt)
+5. User model and database schema
 
-**Endpoints:**
+**Endpoints to Build:**
 ```
 POST   /api/auth/register     - User registration
 POST   /api/auth/login        - User login  
@@ -44,30 +44,66 @@ GET    /api/auth/me           - Get current user
 POST   /api/auth/logout       - User logout
 ```
 
-**Dependencies:**
+**Files You Own:**
 ```
-flask-bcrypt
-PyJWT==2.8.0
+Findme-backend/
+  ├── models/user.py              ✏️ CREATE - User model
+  ├── routes/auth.py              ✏️ CREATE - Auth endpoints
+  ├── controllers/auth_controller.py  ✏️ CREATE - Auth logic
+  └── tests/test_auth.py          ✏️ CREATE - Auth tests
+```
+
+**Dependencies to Add:**
+```
+flask-bcrypt==1.0.1
+```
+
+**Setup Instructions:**
+```bash
+# Create your branch
+git checkout dev
+git pull origin dev
+git checkout -b demestrine-dev
+
+# Create your files
+mkdir -p Findme-backend/controllers
+touch Findme-backend/models/user.py
+touch Findme-backend/routes/auth.py
+touch Findme-backend/controllers/auth_controller.py
+touch Findme-backend/tests/test_auth.py
+
+# Install your dependencies
+pip install flask-bcrypt==1.0.1
+pip freeze > requirements.txt
 ```
 
 ---
 
-### 👤 Person 2: Missing Persons CRUD (elijah-dev)
+### 👤 Person 2: Elijah - Missing Persons CRUD
 **Branch:** `elijah-dev` → `dev` → `main`
 
 **Responsibilities:**
-- Missing person reports CRUD operations
-- Photo upload integration (Cloudinary)
-- Data validation for report submissions
-- MissingPerson model implementation
+1. Missing person reports creation and management
+2. File upload for photos (Cloudinary or local storage)
+3. Data validation for reports
+4. MissingPerson model implementation
 
-**Endpoints:**
+**Endpoints to Build:**
 ```
-POST   /api/missing-persons           - Create report
-GET    /api/missing-persons           - List all reports (paginated)
-GET    /api/missing-persons/:id       - Get specific report
-PUT    /api/missing-persons/:id       - Update report
-DELETE /api/missing-persons/:id       - Delete report (admin only)
+POST   /api/missing-persons           - Create missing person report
+GET    /api/missing-persons           - Get all missing persons (paginated)
+GET    /api/missing-persons/:id       - Get specific person details
+PUT    /api/missing-persons/:id       - Update report status
+DELETE /api/missing-persons/:id       - Remove report (admin only)
+```
+
+**Files You Own:**
+```
+Findme-backend/
+  ├── models/missing_person.py        ✅ DONE - MissingPerson model
+  ├── routes/missing_persons.py       ✏️ CREATE - CRUD endpoints
+  ├── controllers/missing_persons_controller.py  ✏️ CREATE - CRUD logic
+  └── tests/test_missing_persons.py   ✏️ CREATE - CRUD tests
 ```
 
 **Model Fields (MissingPerson):**
@@ -88,90 +124,220 @@ DELETE /api/missing-persons/:id       - Delete report (admin only)
 - status (default: 'missing')
 - case_number (unique)
 - additional_info (text)
+- photo_url (for Cloudinary)
 - created_at, updated_at (auto)
 ```
 
-**Dependencies:**
+**Dependencies to Add:**
 ```
-cloudinary
-python-magic (file type validation)
+cloudinary==1.36.0
+python-magic==0.4.27
+```
+
+**Setup Instructions:**
+```bash
+# Your branch already exists
+git checkout elijah-dev
+git pull origin elijah-dev
+
+# Create remaining files
+touch Findme-backend/routes/missing_persons.py
+touch Findme-backend/controllers/missing_persons_controller.py
+touch Findme-backend/tests/test_missing_persons.py
+
+# Install your dependencies
+pip install cloudinary==1.36.0 python-magic==0.4.27
+pip freeze > requirements.txt
 ```
 
 ---
 
-### 👤 Person 3: Search & Filter System
-**Branch:** `person3-dev` → `dev` → `main`
+### 👤 Person 3: Ian - Search & Filter System
+**Branch:** `ian-dev` → `dev` → `main`
 
 **Responsibilities:**
-- Advanced search functionality
-- Location-based filtering
-- Date range filtering
-- API documentation
+1. Advanced search functionality
+2. Location-based filtering
+3. Real-time search results
+4. API documentation in README
 
-**Endpoints:**
+**Endpoints to Build:**
 ```
-GET    /api/search?q=...&location=...&age_min=...    - Advanced search
-GET    /api/missing-persons/location/:city           - Filter by city
-GET    /api/missing-persons/recent                   - Recent reports (7 days)
+GET    /api/search?name=...&location=...             - Search missing persons
+GET    /api/missing-persons/location/:city           - Filter by location
+GET    /api/missing-persons/recent                   - Get recent reports (7 days)
 GET    /api/missing-persons/stats                    - Platform statistics
 ```
 
-**Query Parameters:**
-- `q` - Name search (partial match)
+**Files You Own:**
+```
+Findme-backend/
+  ├── routes/search.py                ✏️ CREATE - Search endpoints
+  ├── controllers/search_controller.py ✏️ CREATE - Search logic
+  └── tests/test_search.py            ✏️ CREATE - Search tests
+```
+
+**Query Parameters to Support:**
+- `name` - Name search (partial match, case-insensitive)
 - `location` - City/area filter
 - `age_min`, `age_max` - Age range
 - `gender` - Gender filter
 - `status` - Case status (missing/found/closed)
 - `page`, `per_page` - Pagination (default: 20 per page)
+- `date_from`, `date_to` - Date range
+
+**Dependencies to Add:**
+```
+# No additional dependencies needed
+# Uses existing SQLAlchemy queries
+```
+
+**Setup Instructions:**
+```bash
+# Create your branch
+git checkout dev
+git pull origin dev
+git checkout -b ian-dev
+
+# Create your files
+touch Findme-backend/routes/search.py
+touch Findme-backend/controllers/search_controller.py
+touch Findme-backend/tests/test_search.py
+
+# You'll work with Elijah's MissingPerson model
+# Make sure to pull latest dev before starting
+```
 
 ---
 
-### 👤 Person 4: Frontend Lead & Core Pages
-**Branch:** `person4-dev` → `dev` → `main`
+### 👤 Person 4: James - Frontend Lead & Core Pages
+**Branch:** `james-dev` → `dev` → `main`
 
 **Responsibilities:**
-- React app setup (Vite)
-- Routing (React Router)
-- Homepage and navigation
-- Report submission form
-- API integration service
+1. React app setup and routing
+2. Homepage and main layout
+3. Navigation component
+4. Report missing person form
+5. Integration with backend APIs
 
-**Pages:**
+**Pages to Build:**
 ```
-/                - Homepage with search bar & featured cases
+/                - Homepage with search and featured cases
 /report          - Report missing person form
-/about           - About the platform
+/about           - About page
 ```
 
-**Components:**
-- Navbar (with auth state)
-- Footer
-- ReportForm (multi-step form)
-- SearchBar
+**Files You Own:**
+```
+findme-client/
+  ├── src/
+  │   ├── pages/
+  │   │   ├── Home.jsx              ✏️ CREATE - Homepage
+  │   │   ├── ReportForm.jsx        ✏️ CREATE - Report form
+  │   │   └── About.jsx             ✏️ CREATE - About page
+  │   ├── components/
+  │   │   ├── Navbar.jsx            ✏️ CREATE - Navigation with auth
+  │   │   ├── Footer.jsx            ✏️ CREATE - Footer
+  │   │   ├── SearchBar.jsx         ✏️ CREATE - Search component
+  │   │   └── Layout.jsx            ✏️ CREATE - Main layout
+  │   ├── services/
+  │   │   └── api.js                ✅ EXISTS - Update as needed
+  │   └── App.jsx                   ✏️ UPDATE - Add routing
+```
+
+**Dependencies to Add:**
+```
+react-router-dom
+axios (already exists)
+```
+
+**Setup Instructions:**
+```bash
+# Create your branch
+git checkout dev
+git pull origin dev
+git checkout -b james-dev
+
+# Navigate to frontend
+cd findme-client
+
+# Install dependencies
+npm install react-router-dom
+
+# Create folder structure
+mkdir -p src/pages src/components src/services
+
+# Create your files
+touch src/pages/Home.jsx
+touch src/pages/ReportForm.jsx
+touch src/pages/About.jsx
+touch src/components/Navbar.jsx
+touch src/components/Footer.jsx
+touch src/components/SearchBar.jsx
+touch src/components/Layout.jsx
+```
 
 ---
 
-### 👤 Person 5: Frontend Features & UI
-**Branch:** `person5-dev` → `dev` → `main`
+### 👤 Person 5: Eva - Frontend Features & UI
+**Branch:** `eva-dev` → `dev` → `main`
 
 **Responsibilities:**
-- Search results page
-- Individual person detail page
-- Community updates feed
-- Responsive UI (TailwindCSS)
+1. Search results page
+2. Missing person details page
+3. Community updates display
+4. Responsive design with TailwindCSS
 
-**Pages:**
+**Pages to Build:**
 ```
-/search          - Search results with filters
-/person/:id      - Missing person detail profile
+/search          - Search results page
+/person/:id      - Individual missing person profile
 /updates         - Community updates feed
 ```
 
-**Components:**
-- PersonCard
-- SearchFilters
-- PersonDetail
-- UpdatesFeed
+**Files You Own:**
+```
+findme-client/
+  ├── src/
+  │   ├── pages/
+  │   │   ├── SearchResults.jsx     ✏️ CREATE - Search page
+  │   │   ├── PersonDetail.jsx      ✏️ CREATE - Detail page
+  │   │   └── Updates.jsx           ✏️ CREATE - Updates feed
+  │   ├── components/
+  │   │   ├── PersonCard.jsx        ✏️ CREATE - Card for listings
+  │   │   ├── SearchFilters.jsx     ✏️ CREATE - Filter sidebar
+  │   │   └── UpdateCard.jsx        ✏️ CREATE - Update item
+  │   └── index.css                 ✏️ UPDATE - TailwindCSS styles
+```
+
+**Dependencies to Add:**
+```
+# TailwindCSS already configured in vite.config.js
+# No additional dependencies needed
+```
+
+**Setup Instructions:**
+```bash
+# Create your branch
+git checkout dev
+git pull origin dev
+git checkout -b eva-dev
+
+# Navigate to frontend
+cd findme-client
+
+# Create your files
+mkdir -p src/pages src/components
+touch src/pages/SearchResults.jsx
+touch src/pages/PersonDetail.jsx
+touch src/pages/Updates.jsx
+touch src/components/PersonCard.jsx
+touch src/components/SearchFilters.jsx
+touch src/components/UpdateCard.jsx
+
+# Work with James' components (Navbar, Layout)
+# Make sure to pull latest dev before starting
+```
 
 ---
 
@@ -490,17 +656,142 @@ If you encounter merge conflicts:
 
 ---
 
+## 🚫 Conflict Prevention Guide
+
+### File Ownership Matrix
+
+| File/Folder | Owner | Others Can |
+|-------------|-------|-----------|
+| `models/user.py` | Demestrine | ❌ Don't touch |
+| `models/missing_person.py` | Elijah | ✅ Read only |
+| `routes/auth.py` | Demestrine | ❌ Don't touch |
+| `routes/missing_persons.py` | Elijah | ❌ Don't touch |
+| `routes/search.py` | Ian | ❌ Don't touch |
+| `controllers/*_controller.py` | File creator | ❌ Don't touch |
+| `app.py` | Shared | ⚠️ Coordinate changes |
+| `config.py` | Elijah (done) | ✅ Read only |
+| `requirements.txt` | Everyone | ⚠️ Add your deps, don't delete others |
+| Frontend `pages/` | James/Eva | ❌ Only owner edits |
+| Frontend `components/` | James/Eva | ⚠️ Can reuse, don't modify |
+
+### Communication Rules
+
+**Before Starting Work:**
+1. Pull latest `dev` branch
+2. Check if your assigned files exist
+3. If someone created your file, ping them in chat
+
+**Before Pushing:**
+1. Test your code works
+2. Check you only modified YOUR files
+3. Update this README if you added endpoints/pages
+
+**If You Need to Modify Someone Else's File:**
+1. Ask in team chat first
+2. Create a separate PR with clear description
+3. Tag the file owner as reviewer
+
+### Daily Workflow
+
+**Morning (Before Coding):**
+```bash
+git checkout dev
+git pull origin dev
+git checkout your-name-dev
+git merge dev  # Get latest changes
+```
+
+**Evening (After Coding):**
+```bash
+# Test your changes
+python app.py  # Backend
+npm run dev    # Frontend
+
+# Commit and push
+git add .
+git commit -m "feat(your-module): description"
+git push origin your-name-dev
+
+# Create PR: your-name-dev → dev
+```
+
+### Emergency: "I Have Conflicts!"
+
+**Don't Panic. Follow these steps:**
+
+1. **Check what's conflicted:**
+```bash
+git status
+```
+
+2. **If it's YOUR file → Keep your version:**
+```bash
+git checkout --ours path/to/your/file.py
+git add path/to/your/file.py
+```
+
+3. **If it's a SHARED file (app.py, config.py):**
+- Stop and ask in team chat
+- Tag the other person who modified it
+- Resolve together
+
+4. **If it's SOMEONE ELSE'S file:**
+```bash
+git checkout --theirs path/to/their/file.py
+git add path/to/their/file.py
+```
+
+5. **After resolving all conflicts:**
+```bash
+git commit -m "chore: resolve merge conflicts"
+git push origin your-name-dev
+```
+
+---
+
+## 📊 Project Timeline
+
+### Week 1 (Nov 14-20)
+- ✅ **Elijah**: PostgreSQL setup, MissingPerson model
+- 🔄 **Demestrine**: User model, auth endpoints
+- 🔄 **James**: React setup, homepage, navbar
+
+### Week 2 (Nov 21-27)
+- **Elijah**: CRUD endpoints, Cloudinary integration
+- **Ian**: Search and filter endpoints
+- **Eva**: Search results page, person detail page
+
+### Week 3 (Nov 28-Dec 4)
+- **All**: Testing and bug fixes
+- **All**: Integration testing
+- **James/Eva**: Final UI polish
+
+---
+
 ## 🔄 Changelog
 
 | Date | Author | Change |
 |------|--------|--------|
-| 2025-11-14 | Person 2 (Elijah) | Initial setup: PostgreSQL config, MissingPerson model, migrations |
-| 2025-11-14 | Person 1 | Added auth system placeholder |
+| 2025-11-14 | Elijah | Initial setup: PostgreSQL, MissingPerson model, migrations |
+| 2025-11-14 | Elijah | Comprehensive team guide with conflict prevention |
+| 2025-11-14 | Demestrine | Auth system placeholder added |
+
+---
+
+## 👥 Team Contact
+
+| Name | Role | GitHub | Slack/Email |
+|------|------|--------|-------------|
+| Demestrine Awuor | Person 1 (Auth) | @demestrine | TBD |
+| Elijah Kamanga | Person 2 (CRUD) | @muhorocode | elijah.kamanga@... |
+| Ian Tuitoek | Person 3 (Search) | @ian | TBD |
+| James Wachira | Person 4 (Frontend Lead) | @james | TBD |
+| Eva Chemngorem | Person 5 (Frontend UI) | @eva | TBD |
 
 ---
 
 **Last Updated:** November 14, 2025  
-**Maintained by:** All team members - Missing Persons Reporting Platform
+**Maintained by:** All team members (update your section when you make changes) - Missing Persons Reporting Platform
 
 > **Monorepo Architecture**: Full-stack application with Flask backend and React frontend
 
