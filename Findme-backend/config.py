@@ -4,7 +4,7 @@ import os
 class Config:
     # Secret key for sessions and JWT authentication
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'findme-secret-key-2024'
-    # PostgreSQL database configuration (default for all environments)
+    # PostgreSQL database configuration
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://findme_user:grouptwo@localhost:5432/findme_db')
     # Disable SQLAlchemy event system for performance
     SQLALCHEMY_TRACK_MODIFICATIONS = False
