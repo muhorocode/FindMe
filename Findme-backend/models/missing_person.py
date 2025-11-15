@@ -52,28 +52,27 @@ class MissingPerson(db.Model):
                 setattr(self, field, kwargs[field])
 
     def to_dict(self):
-        #convert model to dictionary for JSON serialization
-        return{
-            'id':self.id,
-            'full_name':self.full_name,
-            'age':self.age,
-            'gender':self.gender,
-            'height':self.height,
-            'weight':self.weight,
-            'hair_color':self.hair_color,
-            'eye_color':self.eye_color,
-            'distinguishing_features':self.distinguishing_features,
-            'last_seen_date':self.last_seen_date.isoformat() if self.last_seen_date else None,
-            'last_seen_location':self.last_seen_location,
-            'last_seen_wearing':self.last_seen_wearing,
-            'contact_name':self.contact_name,
-            'contact_phone':self.contact_phone,
-            'contact_email':self.contact_email,
-            'status':self.status,
-            'case_number':self.case_number,
-            'additional_info':self.additional_info,
-            'created_at':self.created_at.isoformat() if self.created_at else None,
-            'updated_at':self.updated_at.isoformat() if self.updated_at else None
+        return {
+            "id": self.id,
+            "full_name": self.full_name,
+            "age": self.age,
+            "gender": self.gender,
+            "height": self.height,
+            "weight": self.weight,
+            "hair_color": self.hair_color,
+            "eye_color": self.eye_color,
+            "distinguishing_features": self.distinguishing_features,
+            "last_seen_date": self.last_seen_date.isoformat() if self.last_seen_date else None,
+            "last_seen_location": self.last_seen_location,
+            "last_seen_wearing": self.last_seen_wearing,
+            "contact_name": self.contact_name,
+            "contact_phone": self.contact_phone,
+            "contact_email": self.contact_email,
+            "status": self.status,
+            "case_number": self.case_number,
+            "additional_info": self.additional_info,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
     
     def __repr__(self):

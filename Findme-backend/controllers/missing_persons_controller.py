@@ -55,3 +55,17 @@ def create_missing_person(data):
             "error": str(e),
             "status": 500
         }
+
+
+def get_all_missing_persons():
+    
+    #Retrieve all missing person reports.
+    #list of dictionaries, each representing a missing person report
+    
+    persons = MissingPerson.query.all()
+    return [person.to_dict() for person in persons]
+
+#function to fetch a missing person by ID
+def get_missing_person_by_id(person_id):
+    person = MissingPerson.query.get(person_id)
+    return person
