@@ -5,7 +5,7 @@ import os
 
 # import configuration and database setup
 from config import config
-from models.missing_person import db
+from models.db import db
 from routes.auth import auth_bp  # authentication routes for user management
 
 def create_app(config_name='development'):
