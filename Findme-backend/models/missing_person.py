@@ -33,10 +33,14 @@ class MissingPerson(db.Model):
     contact_phone=db.Column(db.String(20), nullable=False)
     contact_email=db.Column(db.String(100))
 
+
     #case information
     status=db.Column(db.String(20), default='missing')
     case_number=db.Column(db.String(50), unique=True)
     additional_info=db.Column(db.Text)
+
+    #photo url
+    photo_url=db.Column(db.String(300))
 
     #timestamps
     created_at=db.Column(db.DateTime, default=datetime.utcnow)
@@ -71,6 +75,7 @@ class MissingPerson(db.Model):
             "status": self.status,
             "case_number": self.case_number,
             "additional_info": self.additional_info,
+            "photo_url": self.photo_url,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
