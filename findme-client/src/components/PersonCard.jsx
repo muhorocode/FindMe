@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
 
 function PersonCard({ person }) {
+
+  // Backend fields
+  const fullName = person.full_name || "Unknown";
   const status = (person.status || "Missing").toLowerCase();
+  const lastSeen = person.last_seen_location || "Unknown";
 
   const badgeStyle = {
     padding: "4px 10px",
@@ -25,7 +29,6 @@ function PersonCard({ person }) {
         transition: "0.2s",
       }}
     >
-      {/* Placeholder Image */}
       <div
         style={{
           width: "100%",
@@ -43,7 +46,7 @@ function PersonCard({ person }) {
         {person.image_url ? (
           <img
             src={person.image_url}
-            alt={person.name}
+            alt={fullName}
             style={{
               width: "100%",
               height: "100%",
@@ -56,7 +59,6 @@ function PersonCard({ person }) {
         )}
       </div>
 
-      {/* Name */}
       <h2
         style={{
           fontWeight: 600,
@@ -65,15 +67,11 @@ function PersonCard({ person }) {
           color: "#111827",
         }}
       >
-        {person.name}
+        {fullName}
       </h2>
 
-      {/* Status Badge */}
-      <span style={badgeStyle}>
-        {person.status || "Missing"}
-      </span>
+      <span style={badgeStyle}>{person.status || "Missing"}</span>
 
-      {/* Last Seen */}
       <p
         style={{
           fontSize: "0.9rem",
@@ -81,11 +79,9 @@ function PersonCard({ person }) {
           marginBottom: "1rem",
         }}
       >
-        <strong>Last Seen:</strong>{" "}
-        {person.last_seen_location || "Unknown"}
+        <strong>Last Seen:</strong> {lastSeen}
       </p>
 
-      {/* Button */}
       <Link
         to={`/person/${person.id}`}
         style={{
