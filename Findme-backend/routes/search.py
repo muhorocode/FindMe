@@ -1,41 +1,99 @@
+# routes/search.py
+
 from flask import Blueprint, request, jsonify
-from controllers.search_controller import SearchController
+from models.missing_person import MissingPerson
+from models.db import db
 
-search_bp = Blueprint('search', __name__, url_prefix='/api')
+search_bp = Blueprint("search", __name__, url_prefix="/api")
 
-@search_bp.route('/search', methods=['GET'])
-def search_missing_persons():
-    """Search missing persons with filters"""
+# ----------------------------------------
+# ADVANCED SEARCH
+# ----------------------------------------
+@search_bp.route("/search", methods=["GET"])
+def advanced_search():
     try:
-        results = SearchController.search_missing_persons(request.args.to_dict())
-        return jsonify(results), 200
+        # Get query parameters
+        name = request.args.get('name', '').strip()
+        location = request.args.get('location', '').strip()
+        age_min = request.args.get('age_min', type=int)
+        age_max = request.args.get('age_max', type=int)
+        gender = request.args.get('gender', '').strip()
+        status = request.args.get('status', '').strip()
+        
+        # Start with base query
+        query = MissingPerson.query
+        
+        # Apply filters
+        if name:
+            query = query.filter(MissingPerson.full_name.ilike(f'%{name}%'))
+        
+        if location:
+            query = query.filter(MissingPerson.last_seen_location.ilike(f'%{location}%'))
+        
+        if age_min is not None:
+            query = query.filter(MissingPerson.age >= age_min)
+        
+        if age_max is not None:
+            query = query.filter(MissingPerson.age <= age_max)
+        
+        if gender:
+            query = query.filter(MissingPerson.gender.ilike(f'%{gender}%'))
+        
+        if status:
+            query = query.filter(MissingPerson.status == status)
+        
+        # Execute query
+        results = query.all()
+        
+        return jsonify({
+            "success": True,
+            "data": [person.to_dict() for person in results],
+            "filters_applied": {
+                "name": name,
+                "location": location,
+                "age_min": age_min,
+                "age_max": age_max,
+                "gender": gender,
+                "status": status
+            },
+            "results_count": len(results)
+        }), 200
+        
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
-@search_bp.route('/missing-persons/location/<city>', methods=['GET'])  # Changed county to city
-def filter_by_location(county):  
-    """Filter by location"""
-    try:
-        results = SearchController.filter_by_location(county)
-        return jsonify({'location': county, 'count': len(results), 'results': results}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
-@search_bp.route('/missing-persons/recent', methods=['GET'])
-def get_recent_reports():
-    """Get recent reports (last 7 days)"""
+# ----------------------------------------
+# QUICK SEARCH (Search across multiple fields)
+# ----------------------------------------
+@search_bp.route("/search/quick", methods=["GET"])
+def quick_search():
     try:
-        days = request.args.get('days', 7, type=int)
-        results = SearchController.get_recent_reports(days)
-        return jsonify({'days': days, 'count': len(results), 'results': results}), 200
+        search_term = request.args.get('q', '').strip()
+        
+        if not search_term:
+            return jsonify({
+                "success": True,
+                "data": [],
+                "message": "Please provide a search term"
+            }), 200
+        
+        # Search across multiple fields
+        results = MissingPerson.query.filter(
+            db.or_(
+                MissingPerson.full_name.ilike(f'%{search_term}%'),
+                MissingPerson.last_seen_location.ilike(f'%{search_term}%'),
+                MissingPerson.contact_name.ilike(f'%{search_term}%'),
+                MissingPerson.distinguishing_features.ilike(f'%{search_term}%')
+            )
+        ).all()
+        
+        return jsonify({
+            "success": True,
+            "data": [person.to_dict() for person in results],
+            "search_term": search_term,
+            "results_count": len(results)
+        }), 200
+        
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@search_bp.route('/missing-persons/stats', methods=['GET'])
-def get_statistics():
-    """Get platform statistics"""
-    try:
-        stats = SearchController.get_statistics()
-        return jsonify(stats), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
