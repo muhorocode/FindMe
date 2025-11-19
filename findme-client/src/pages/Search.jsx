@@ -12,7 +12,7 @@ function Search() {
       setLoading(true);
       setError("");
       const response = await fetch(
-        `https://findme-backend-2.onrender.com/missing_persons?name=${query}`
+        `${import.meta.env.VITE_API_BASE || 'https://findme-l00y.onrender.com/api'}/missing-persons?name=${query}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch search results");

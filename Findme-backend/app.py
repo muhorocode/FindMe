@@ -64,5 +64,5 @@ def create_app(config_name='development'):
 
 
 if __name__ == "__main__":
-    app = create_app("development")
-    app.run(debug=True, port=5000)
+    app = create_app("production")
+    app.run(debug=False, port=5000)
