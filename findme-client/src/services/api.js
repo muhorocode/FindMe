@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://findme-l00y.onrender.com/api';
+const API_BASE_URL = process.env.NODE_ENV === 'production'
+  ? 'https://findme-l00y.onrender.com/api'
+  : 'http://localhost:5000/api';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -19,4 +21,4 @@ export const missingPersonsAPI = {
 };
 
 // Health check
-export const healthCheck = () => axios.get('https://findme-l00y.onrender.com/api/health');
+export const healthCheck = () => api.get('/health');

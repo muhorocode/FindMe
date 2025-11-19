@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
@@ -48,12 +49,62 @@ def create_app(config_name='development'):
             "endpoints": {
                 "health": "/api/health",
                 "authentication": [
+=======
+# app.py
+
+from flask import Flask, jsonify
+from flask_cors import CORS
+from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
+
+from config import config
+from models.db import db, bcrypt
+from routes.auth import auth_bp
+from routes.missing_persons import missing_persons_bp
+from routes.search import search_bp
+
+def create_app(config_name='development'):
+    app = Flask(__name__)
+
+    app.config.from_object(config[config_name])
+    app.config["JWT_SECRET_KEY"] = "your-secret-key"
+    app.config["JWT_TOKEN_LOCATION"] = ["headers"]
+
+    # Init extensions
+    if app.config.get("ENV") == "production":
+        CORS(app, resources={r"/*": {"origins": "https://find-me-ashen.vercel.app"}})
+    else:
+        CORS(app, resources={r"/*": {"origins": "*"}})
+    
+    db.init_app(app)
+    bcrypt.init_app(app)
+    Migrate(app, db)
+    
+    jwt = JWTManager(app)
+
+    @jwt.user_identity_loader
+    def user_identity_lookup(user_id):
+        return user_id
+
+    # Register routes
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(missing_persons_bp)
+    app.register_blueprint(search_bp)
+
+    @app.route("/")
+    def home():
+        return jsonify({
+            "message": "FindMe API backend is running",
+            "routes": {
+                "auth": [
+>>>>>>> elijah-dev
                     "/api/auth/register",
                     "/api/auth/login",
                     "/api/auth/me"
                 ],
                 "missing_persons": "/api/missing-persons",
                 "specific_person": "/api/missing-persons/<id>",
+<<<<<<< HEAD
                 "search": "/api/search?name=...&location=...&age_min=...&age_max=...&gender=...&status=...",
                 "filter_location": "/api/missing-persons/location/<city>",
                 "recent_reports": "/api/missing-persons/recent",
@@ -84,4 +135,20 @@ if __name__ == '__main__':
     # start the flask development server
     app = create_app('development')
     print("starting FindMe server with complete authentication and search system...")
+=======
+                "my_reports": "/api/missing-persons/mine",
+                "search": "/api/search?name=...&location=...&age_min=...&age_max=...&gender=...&status=...",
+                "filter_location": "/api/missing-persons/location/<city>",
+                "recent_reports": "/api/missing-persons/recent",
+                "statistics": "/api/missing-persons/stats",
+                "health": "/api/health"
+            }
+        })
+
+    return app
+
+
+if __name__ == "__main__":
+    app = create_app("development")
+>>>>>>> elijah-dev
     app.run(debug=True, port=5000)
