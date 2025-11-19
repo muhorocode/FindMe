@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://findme-l00y.onrender.com/api';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -11,12 +11,12 @@ export const api = axios.create({
 
 // Missing Persons API
 export const missingPersonsAPI = {
-  getAll: () => api.get('/missing'),
-  getById: (id) => api.get(`/missing/${id}`),
-  create: (data) => api.post('/missing', data),
-  update: (id, data) => api.put(`/missing/${id}`, data),
-  delete: (id) => api.delete(`/missing/${id}`),
+  getAll: () => api.get('/missing-persons'),
+  getById: (id) => api.get(`/missing-persons/${id}`),
+  create: (data) => api.post('/missing-persons', data),
+  update: (id, data) => api.put(`/missing-persons/${id}`, data),
+  delete: (id) => api.delete(`/missing-persons/${id}`),
 };
 
 // Health check
-export const healthCheck = () => axios.get('http://localhost:5000/api/health');
+export const healthCheck = () => axios.get('https://findme-l00y.onrender.com/api/health');
