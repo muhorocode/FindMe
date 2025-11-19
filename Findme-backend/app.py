@@ -1,66 +1,55 @@
+# app.py
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
-import os
+from flask_jwt_extended import JWTManager
 
-# Import configuration and database
 from config import config
-from models.missing_person import db
-# from auth import auth_bp  # Authentication routes (when available)
+from models.db import db, bcrypt
+from routes.auth import auth_bp
+from routes.missing_persons import missing_persons_bp
+from routes.search import search_bp
 
 def create_app(config_name='development'):
     app = Flask(__name__)
-    
-    # Load configuration
+
     app.config.from_object(config[config_name])
+    app.config["JWT_SECRET_KEY"] = "your-secret-key"
+    app.config["JWT_TOKEN_LOCATION"] = ["headers"]
+
+    # Init extensions
+    CORS(app, resources={r"/*": {"origins": "*"}})
     
-    # Initialize extensions
-    CORS(app)  # Enable CORS for React frontend
-    db.init_app(app)  # Initialize SQLAlchemy
-    migrate = Migrate(app, db)  # Initialize flask-migrate
+    db.init_app(app)
+    bcrypt.init_app(app)
+    Migrate(app, db)
     
-    # Register authentication routes (uncomment when auth module ready)
-    # app.register_blueprint(auth_bp)
-    
-    # Create all database tables
-    with app.app_context():
-        db.create_all()
+    jwt = JWTManager(app)
+
+    @jwt.user_identity_loader
+    def user_identity_lookup(user_id):
+        return user_id
 
     # Register routes
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(missing_persons_bp)
+    app.register_blueprint(search_bp)
 
-
-    @app.route('/')
+    @app.route("/")
     def home():
         return jsonify({
-            "message": "FindMe- Missing Persons Reporting API",
-            "description": "Community-driven platform for reporting and tracking missing persons",
-            "endpoints": {
-                "health": "/api/health",
-                "authentication": "/api/auth/register & /api/auth/login",
-                "missing_persons": "/api/missing",
-                "specific_person": "/api/missing/<id>"
+            "message": "FindMe API backend is running",
+            "routes": {
+                "auth": "/api/auth",
+                "missing persons": "/api/missing-persons",
+                "my reports": "/api/missing-persons/mine"
             }
-        })
-
-    @app.route('/api/health')
-    def health_check():
-        # Test database connection
-        try:
-            db.session.execute(db.text('SELECT 1'))
-            db_status = "connected"
-        except Exception as e:
-            db_status = f"error: {str(e)}"
-
-        return jsonify({
-            "status": "healthy",
-            "database": db_status,
-            "authentication": "JWT system ready",
-            "message": "API is running with authentication"
         })
 
     return app
 
-if __name__ == '__main__':
-    app = create_app('development')
-    print("Starting FindMe server with authentication...")
+
+if __name__ == "__main__":
+    app = create_app("development")
     app.run(debug=True, port=5000)
