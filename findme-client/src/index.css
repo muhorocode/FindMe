@@ -1,3 +1,4 @@
+@import "tailwindcss";
 /* GLOBAL RESET */
 html, body, #root {
   margin: 0;
