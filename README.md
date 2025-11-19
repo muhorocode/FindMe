@@ -1,4 +1,4 @@
-# FindMe - Missing Persons Platform
+ # FindMe - Missing Persons Platform
 
 > Community-driven platform for reporting and tracking missing persons
 
@@ -935,3 +935,4 @@ MIT License
 ---
 
 **Built by the finders for Phase 4 - Moringa School**
+ 
