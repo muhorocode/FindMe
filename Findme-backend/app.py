@@ -19,7 +19,10 @@ def create_app(config_name='development'):
     app.config["JWT_TOKEN_LOCATION"] = ["headers"]
 
     # Init extensions
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    if app.config.get("ENV") == "production":
+        CORS(app, resources={r"/*": {"origins": "https://find-me-ashen.vercel.app"}})
+    else:
+        CORS(app, resources={r"/*": {"origins": "*"}})
     
     db.init_app(app)
     bcrypt.init_app(app)
@@ -41,9 +44,19 @@ def create_app(config_name='development'):
         return jsonify({
             "message": "FindMe API backend is running",
             "routes": {
-                "auth": "/api/auth",
-                "missing persons": "/api/missing-persons",
-                "my reports": "/api/missing-persons/mine"
+                "auth": [
+                    "/api/auth/register",
+                    "/api/auth/login",
+                    "/api/auth/me"
+                ],
+                "missing_persons": "/api/missing-persons",
+                "specific_person": "/api/missing-persons/<id>",
+                "my_reports": "/api/missing-persons/mine",
+                "search": "/api/search?name=...&location=...&age_min=...&age_max=...&gender=...&status=...",
+                "filter_location": "/api/missing-persons/location/<city>",
+                "recent_reports": "/api/missing-persons/recent",
+                "statistics": "/api/missing-persons/stats",
+                "health": "/api/health"
             }
         })
 
