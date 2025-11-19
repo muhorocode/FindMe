@@ -1,192 +1,82 @@
-export default function About() {
-  return (
-    <div
-      style={{
-        width: "100%",
-        minHeight: "100vh",
-        background: "#f7f8fa", // soft neutral background
-        padding: "4rem 1rem",
-        boxSizing: "border-box",
-      }}
-    >
-      {/* MAIN CONTENT CONTAINER */}
-      <div
-        style={{
-          maxWidth: "850px",
-          margin: "0 auto",
-          background: "#ffffff",
-          padding: "3rem 2rem",
-          borderRadius: "12px",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
-        }}
-      >
-        {/* HEADER */}
-        <h1
-          style={{
-            fontSize: "2.4rem",
-            fontWeight: 700,
-            color: "#111827",
-            marginBottom: "1.5rem",
-          }}
-        >
-          About FindMe
-        </h1>
+import React from "react"
 
-        {/* LEAD PARAGRAPH */}
-        <p
-          style={{
-            fontSize: "1.05rem",
-            color: "#4b5563",
-            lineHeight: "1.7",
-            marginBottom: "2.5rem",
-          }}
-        >
-          FindMe is a community-driven platform designed to help families,
-          communities, and authorities locate missing persons quickly, safely,
-          and effectively through a unified digital system.
-        </p>
+const About = () => {
+return (
+	<div className="mx-auto mt-5">
+	<div className="bg-white rounded-lg shadow-lg p-6 md:p-8">
+		<h1 className="text-3xl md:text-4xl font-bold mb-6">About Our Finders App</h1>
+		
+		<div className="space-y-8">
+		<section>
+			<h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
+			<p className="text-gray-700 mb-4">
+			FindMe is dedicated to helping families and communities locate missing loved ones 
+			through technology, collaboration, and compassion. We believe that everyone missing deserves 
+			to be found and that technology can play a crucial role in reuniting people.
+			</p>
+		</section>
 
-        {/* DIVIDER */}
-        <div
-          style={{
-            height: "1px",
-            background: "#e5e7eb",
-            margin: "2.5rem 0",
-          }}
-        ></div>
+		<section>
+			<h2 className="text-2xl font-semibold mb-4">What We Do</h2>
+			<div className="grid md:grid-cols-2 gap-6 mb-6">
+			<div className="bg-blue-50 p-6 rounded-lg">
+				<h3 className="text-xl font-semibold mb-3 text-blue-800">Report Missing Persons</h3>
+				<p className="text-gray-700">
+				Our secure platform allows you to quickly and efficiently report missing persons 
+				with all the necessary details to aid in the search.
+				</p>
+			</div>
+			
+			<div className="bg-green-50 p-6 rounded-lg">
+				<h3 className="text-xl font-semibold mb-3 text-green-800">Community Search</h3>
+				<p className="text-gray-700">
+				Leverage the power of community by sharing information and collaborating 
+				with others to help locate missing individuals.
+				</p>
+			</div>
+			</div>
+		</section>
 
-        {/* SECTION 1 */}
-        <h2
-          style={{
-            fontSize: "1.6rem",
-            fontWeight: 600,
-            color: "#111827",
-            marginBottom: "1rem",
-          }}
-        >
-          The Challenge
-        </h2>
+		<section>
+			<h2 className="text-2xl font-semibold mb-4">How It Works</h2>
+			<ol className="list-decimal list-inside space-y-3 text-gray-700">
+			<li className="pb-2">
+				<strong>Report:</strong> Fill out our comprehensive form with details about the missing person
+			</li>
+			<li className="pb-2">
+				<strong>Verify:</strong> Our team reviews and verifies the information
+			</li>
+			<li className="pb-2">
+				<strong>Share:</strong> The case is shared with our community and relevant authorities
+			</li>
+			<li className="pb-2">
+				<strong>Search:</strong> Community members can help by sharing information and keeping watch
+			</li>
+			<li className="pb-2">
+				<strong>Update:</strong> Regular updates are provided as new information becomes available
+			</li>
+			</ol>
+		</section>
 
-        <p
-          style={{
-            fontSize: "1rem",
-            color: "#4b5563",
-            lineHeight: "1.7",
-            marginBottom: "2rem",
-          }}
-        >
-          When a loved one goes missing, families often face confusion, delayed
-          communication, scattered information, and limited tools to coordinate
-          an effective search effort. In these urgent moments, every second
-          matters — and information needs to move fast, accurately, and
-          reliably.
-        </p>
-
-        {/* DIVIDER */}
-        <div
-          style={{
-            height: "1px",
-            background: "#e5e7eb",
-            margin: "2.5rem 0",
-          }}
-        ></div>
-
-        {/* SECTION 2 */}
-        <h2
-          style={{
-            fontSize: "1.6rem",
-            fontWeight: 600,
-            color: "#111827",
-            marginBottom: "1rem",
-          }}
-        >
-          Our Solution
-        </h2>
-
-        <p
-          style={{
-            fontSize: "1rem",
-            color: "#4b5563",
-            lineHeight: "1.7",
-            marginBottom: "2rem",
-          }}
-        >
-          FindMe centralizes missing person reports, allowing real-time updates,
-          verified information, and quick visibility across communities and
-          authorities. The platform brings clarity and structure during one of
-          the most stressful situations a family can face.
-        </p>
-
-        {/* DIVIDER */}
-        <div
-          style={{
-            height: "1px",
-            background: "#e5e7eb",
-            margin: "2.5rem 0",
-          }}
-        ></div>
-
-        {/* SECTION 3 */}
-        <h2
-          style={{
-            fontSize: "1.6rem",
-            fontWeight: 600,
-            color: "#111827",
-            marginBottom: "1rem",
-          }}
-        >
-          How It Works
-        </h2>
-
-        <ul
-          style={{
-            paddingLeft: "1.2rem",
-            color: "#4b5563",
-            lineHeight: "1.8",
-            fontSize: "1rem",
-            marginBottom: "2rem",
-          }}
-        >
-          <li>Report missing persons in minutes</li>
-          <li>Search and filter active cases easily</li>
-          <li>Access detailed profiles and updates</li>
-          <li>Share cases with communities instantly</li>
-          <li>Help authorities and families coordinate searches</li>
-        </ul>
-
-        {/* DIVIDER */}
-        <div
-          style={{
-            height: "1px",
-            background: "#e5e7eb",
-            margin: "2.5rem 0",
-          }}
-        ></div>
-
-        {/* SECTION 4 */}
-        <h2
-          style={{
-            fontSize: "1.6rem",
-            fontWeight: 600,
-            color: "#111827",
-            marginBottom: "1rem",
-          }}
-        >
-          Our Mission
-        </h2>
-
-        <p
-          style={{
-            fontSize: "1rem",
-            color: "#4b5563",
-            lineHeight: "1.7",
-          }}
-        >
-          To empower families and communities with an accessible, secure platform
-          that improves how missing person cases are reported, shared, and
-          resolved — ensuring that no one goes missing without support.
-        </p>
-      </div>
-    </div>
-  );
+		<section className="bg-gray-50 p-6 rounded-lg">
+			<h2 className="text-2xl font-semibold mb-4">Emergency Contacts</h2>
+			<p className="text-gray-700 mb-4">
+			If this is an emergency or you have immediate information about a missing person, 
+			please contact local authorities immediately:
+			</p>
+			<div className="grid md:grid-cols-2 gap-4 text-sm">
+			<div>
+				<strong>Police Emergency:</strong> 911 (KE) or your local emergency number
+			</div>
+			<div>
+				<strong>National Center for Missing & Exploited Children:</strong> 1--THE-LOST
+			</div>
+			</div>
+		</section>
+		</div>
+	</div>
+	</div>
+)
 }
+
+export default About
