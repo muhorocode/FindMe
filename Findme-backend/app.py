@@ -34,6 +34,38 @@ def create_app(config_name='development'):
     def user_identity_lookup(user_id):
         return user_id
 
+    # ✅ CRITICAL FIX: Import models BEFORE creating tables
+    try:
+        from models.user import User
+        print("✅ User model imported successfully")
+    except ImportError as e:
+        print(f"❌ Failed to import User model: {e}")
+
+    try:
+        from models.missing_person import MissingPerson
+        print("✅ MissingPerson model imported successfully")
+    except ImportError as e:
+        print(f"❌ Failed to import MissingPerson model: {e}")
+
+    # ✅ CRITICAL FIX: Create database tables inside app context
+    with app.app_context():
+        try:
+            print("🔄 Creating database tables...")
+            db.create_all()
+            print("✅ Database tables created successfully!")
+            
+            # Verify tables were created
+            from sqlalchemy import inspect
+            inspector = inspect(db.engine)
+            tables = inspector.get_table_names()
+            print(f"📊 Available tables: {tables}")
+            
+        except Exception as e:
+            print(f"❌ Database error during table creation: {e}")
+            # Try to get more detailed error info
+            import traceback
+            print(f"🔍 Detailed traceback: {traceback.format_exc()}")
+
     # Register routes
     app.register_blueprint(auth_bp)
     app.register_blueprint(missing_persons_bp)
@@ -90,4 +122,5 @@ def create_app(config_name='development'):
 
 if __name__ == "__main__":
     app = create_app("development")
+    print("🚀 Starting FindMe server with database initialization...")
     app.run(debug=True, port=5000)
