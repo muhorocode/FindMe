@@ -1,11 +1,15 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Config:
     BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-    # use postgresql for team development
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    # Use SQLite for testing, PostgreSQL for production
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///findme.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'jwt-dev-secret-key')
     CORS_HEADERS = 'Content-Type'
 
 class DevelopmentConfig(Config):
