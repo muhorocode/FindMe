@@ -4,25 +4,34 @@ import PersonCard from "../components/PersonCard";
 import { missingPersonsAPI } from "../services/api";
 
 export default function Home() {
-  const [people, setPeople] = useState([]); // real data from backend
-  const [filtered, setFiltered] = useState([]); // filtered by search
+  const [people, setPeople] = useState([]);
+  const [filtered, setFiltered] = useState([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch reports from backend
+  // Fetch reports
   useEffect(() => {
     let mounted = true;
-    const fetchPeople = async () => {
+
+    async function fetchPeople() {
       setLoading(true);
       setError(null);
+
       try {
         const res = await missingPersonsAPI.getAll();
+
         if (res?.status === 200) {
           const list = Array.isArray(res.data?.data) ? res.data.data : [];
+
+          // Newest → Oldest
+          const sorted = [...list].sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+          );
+
           if (mounted) {
-            setPeople(list);
-            setFiltered(list);
+            setPeople(sorted);
+            setFiltered(sorted);
           }
         } else {
           throw new Error("Failed to fetch reports");
@@ -33,15 +42,18 @@ export default function Home() {
       } finally {
         if (mounted) setLoading(false);
       }
-    };
+    }
 
     fetchPeople();
     return () => (mounted = false);
   }, []);
 
-  const handleSearch = (e) => {
-    e && e.preventDefault();
-    const q = query.trim().toLowerCase();
+  // 🔍 LIVE SEARCH — updates filtered list as user types
+  const handleLiveSearch = (value) => {
+    setQuery(value);
+
+    const q = value.trim().toLowerCase();
+
     if (!q) {
       setFiltered(people);
       return;
@@ -49,13 +61,20 @@ export default function Home() {
 
     setFiltered(
       people.filter((p) =>
-        (p.full_name || p.name || "").toLowerCase().includes(q)
+        (p.full_name || "").toLowerCase().includes(q)
       )
     );
   };
 
   return (
-    <div style={{ width: "100%", maxWidth: "1300px", margin: "0 auto" }}>
+    <div
+      style={{
+        width: "100%",
+        maxWidth: "1300px",
+        margin: "0 auto",
+        paddingBottom: "4rem",
+      }}
+    >
       <h1 style={{ fontSize: "3rem", fontWeight: 700, color: "#1f2937" }}>
         Find Missing Persons
       </h1>
@@ -64,16 +83,13 @@ export default function Home() {
         A community-driven platform to report and search for missing persons.
       </p>
 
-      {/* Search Bar */}
-      <form
-        onSubmit={handleSearch}
-        style={{ display: "flex", gap: "1rem", marginBottom: "3rem" }}
-      >
+      {/* 🔍 LIVE SEARCH BAR (no form) */}
+      <div style={{ display: "flex", gap: "1rem", marginBottom: "3rem" }}>
         <input
           type="text"
           placeholder="Search by name..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => handleLiveSearch(e.target.value)}
           style={{
             flex: 1,
             padding: "0.9rem",
@@ -83,7 +99,7 @@ export default function Home() {
         />
 
         <button
-          type="submit"
+          type="button"
           style={{
             padding: "0 1.6rem",
             borderRadius: "8px",
@@ -92,23 +108,25 @@ export default function Home() {
             border: "none",
             cursor: "pointer",
           }}
+          onClick={() => handleLiveSearch(query)}
         >
           Search
         </button>
-      </form>
+      </div>
 
       <h2 style={{ fontSize: "1.6rem", fontWeight: 700 }}>Featured cases</h2>
 
       {loading && <div style={{ color: "#374151" }}>Loading…</div>}
       {error && <div style={{ color: "crimson" }}>{error}</div>}
 
-      {/* Results grid */}
+      {/* Results */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
           gap: "2rem",
           width: "100%",
+          marginTop: "1.5rem",
         }}
       >
         {filtered.map((p) => (
@@ -116,7 +134,7 @@ export default function Home() {
             key={p.id}
             person={{
               id: p.id,
-              name: p.full_name,
+              full_name: p.full_name,
               last_seen_location: p.last_seen_location,
               status: p.status || "Missing",
               image_url: p.photo_url || null,

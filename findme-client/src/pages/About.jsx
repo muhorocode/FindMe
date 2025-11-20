@@ -1,192 +1,170 @@
+// src/pages/About.jsx
+
 export default function About() {
   return (
     <div
       style={{
         width: "100%",
         minHeight: "100vh",
-        background: "#f7f8fa", // soft neutral background
+        background: "#f7f8fa",
         padding: "4rem 1rem",
         boxSizing: "border-box",
       }}
     >
-      {/* MAIN CONTENT CONTAINER */}
+      {/* MAIN CONTENT WRAPPER */}
       <div
         style={{
-          maxWidth: "850px",
+          maxWidth: "1100px",
           margin: "0 auto",
-          background: "#ffffff",
-          padding: "3rem 2rem",
-          borderRadius: "12px",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
         }}
       >
-        {/* HEADER */}
-        <h1
-          style={{
-            fontSize: "2.4rem",
-            fontWeight: 700,
-            color: "#111827",
-            marginBottom: "1.5rem",
-          }}
-        >
-          About FindMe
-        </h1>
-
-        {/* LEAD PARAGRAPH */}
-        <p
-          style={{
-            fontSize: "1.05rem",
-            color: "#4b5563",
-            lineHeight: "1.7",
-            marginBottom: "2.5rem",
-          }}
-        >
-          FindMe is a community-driven platform designed to help families,
-          communities, and authorities locate missing persons quickly, safely,
-          and effectively through a unified digital system.
-        </p>
-
-        {/* DIVIDER */}
+        {/* GRID LAYOUT: TEXT LEFT — IMAGE RIGHT */}
         <div
           style={{
-            height: "1px",
-            background: "#e5e7eb",
-            margin: "2.5rem 0",
-          }}
-        ></div>
-
-        {/* SECTION 1 */}
-        <h2
-          style={{
-            fontSize: "1.6rem",
-            fontWeight: 600,
-            color: "#111827",
-            marginBottom: "1rem",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "2.5rem",
+            alignItems: "center",
+            marginBottom: "3rem",
           }}
         >
-          The Challenge
-        </h2>
+          {/* LEFT SIDE TEXT */}
+          <div
+            style={{
+              background: "#ffffff",
+              padding: "2.5rem",
+              borderRadius: "14px",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.06)",
+            }}
+          >
+            <p
+              style={{
+                color: "#f97316",
+                fontWeight: 600,
+                marginBottom: "0.75rem",
+                fontSize: "0.95rem",
+              }}
+            >
+              Who We Are
+            </p>
 
-        <p
-          style={{
-            fontSize: "1rem",
-            color: "#4b5563",
-            lineHeight: "1.7",
-            marginBottom: "2rem",
-          }}
-        >
-          When a loved one goes missing, families often face confusion, delayed
-          communication, scattered information, and limited tools to coordinate
-          an effective search effort. In these urgent moments, every second
-          matters — and information needs to move fast, accurately, and
-          reliably.
-        </p>
+            <h1
+              style={{
+                fontSize: "2.6rem",
+                fontWeight: 700,
+                color: "#111827",
+                lineHeight: 1.25,
+                marginBottom: "1.2rem",
+              }}
+            >
+              Together, We Help Bring Missing Loved Ones Home
+            </h1>
 
-        {/* DIVIDER */}
+            <p
+              style={{
+                color: "#4b5563",
+                fontSize: "1.05rem",
+                lineHeight: "1.7",
+                marginBottom: "1.4rem",
+              }}
+            >
+              FindMe is a community-driven platform that helps families,
+              communities, and local authorities report, track, and find missing
+              persons quickly and reliably. We make critical information visible
+              in minutes — not days — so every second counts.
+            </p>
+
+            <p
+              style={{
+                color: "#4b5563",
+                fontSize: "1.05rem",
+                lineHeight: "1.7",
+                marginBottom: "1.4rem",
+              }}
+            >
+              To create a report, simply create an account and click the
+              <strong> Report </strong>
+              tab. Upload key details, a photo, and last-seen information — and
+              your case becomes instantly accessible to the community.
+            </p>
+          </div>
+
+          {/* RIGHT SIDE IMAGE */}
+          <div
+            style={{
+              background: "#ffffff",
+              padding: "1rem",
+              borderRadius: "14px",
+              boxShadow: "0 4px 14px rgba(0,0,0,0.06)",
+            }}
+          >
+            <img
+              src="https://media.istockphoto.com/id/1352766172/vector/multi-ethnic-group-of-hands-raising-up.jpg?s=612x612&w=0&k=20&c=uvBVBpnRDXNVb8Honf2W_xno-0hNxLPW-hyVWlCc1LU="
+              alt="FindMe Community"
+              style={{
+                width: "100%",
+                height: "360px",
+                objectFit: "cover",
+                borderRadius: "12px",
+              }}
+            />
+          </div>
+        </div>
+
+        {/* STATS GRID */}
         <div
           style={{
-            height: "1px",
-            background: "#e5e7eb",
-            margin: "2.5rem 0",
-          }}
-        ></div>
-
-        {/* SECTION 2 */}
-        <h2
-          style={{
-            fontSize: "1.6rem",
-            fontWeight: 600,
-            color: "#111827",
-            marginBottom: "1rem",
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: "1.4rem",
+            marginTop: "1rem",
           }}
         >
-          Our Solution
-        </h2>
+          {/* Case Stats */}
+          <div style={statBox}>
+            <h3 style={statNumber}>150+</h3>
+            <p style={statLabel}>Cases Reported</p>
+          </div>
 
-        <p
-          style={{
-            fontSize: "1rem",
-            color: "#4b5563",
-            lineHeight: "1.7",
-            marginBottom: "2rem",
-          }}
-        >
-          FindMe centralizes missing person reports, allowing real-time updates,
-          verified information, and quick visibility across communities and
-          authorities. The platform brings clarity and structure during one of
-          the most stressful situations a family can face.
-        </p>
+          <div style={statBox}>
+            <h3 style={statNumber}>32</h3>
+            <p style={statLabel}>People Found</p>
+          </div>
 
-        {/* DIVIDER */}
-        <div
-          style={{
-            height: "1px",
-            background: "#e5e7eb",
-            margin: "2.5rem 0",
-          }}
-        ></div>
+          <div style={statBox}>
+            <h3 style={statNumber}>25+</h3>
+            <p style={statLabel}>Counties Involved</p>
+          </div>
 
-        {/* SECTION 3 */}
-        <h2
-          style={{
-            fontSize: "1.6rem",
-            fontWeight: 600,
-            color: "#111827",
-            marginBottom: "1rem",
-          }}
-        >
-          How It Works
-        </h2>
-
-        <ul
-          style={{
-            paddingLeft: "1.2rem",
-            color: "#4b5563",
-            lineHeight: "1.8",
-            fontSize: "1rem",
-            marginBottom: "2rem",
-          }}
-        >
-          <li>Report missing persons in minutes</li>
-          <li>Search and filter active cases easily</li>
-          <li>Access detailed profiles and updates</li>
-          <li>Share cases with communities instantly</li>
-          <li>Help authorities and families coordinate searches</li>
-        </ul>
-
-        {/* DIVIDER */}
-        <div
-          style={{
-            height: "1px",
-            background: "#e5e7eb",
-            margin: "2.5rem 0",
-          }}
-        ></div>
-
-        {/* SECTION 4 */}
-        <h2
-          style={{
-            fontSize: "1.6rem",
-            fontWeight: 600,
-            color: "#111827",
-            marginBottom: "1rem",
-          }}
-        >
-          Our Mission
-        </h2>
-
-        <p
-          style={{
-            fontSize: "1rem",
-            color: "#4b5563",
-            lineHeight: "1.7",
-          }}
-        >
-          To empower families and communities with an accessible, secure platform
-          that improves how missing person cases are reported, shared, and
-          resolved — ensuring that no one goes missing without support.
-        </p>
+          <div style={statBox}>
+            <h3 style={statNumber}>500+</h3>
+            <p style={statLabel}>Community Helpers</p>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
+/* ------------------------- STAT BOX STYLES ------------------------- */
+
+const statBox = {
+  background: "#ffffff",
+  padding: "1.6rem 1.2rem",
+  borderRadius: "12px",
+  textAlign: "center",
+  boxShadow: "0 3px 12px rgba(0,0,0,0.05)",
+};
+
+const statNumber = {
+  fontSize: "2rem",
+  fontWeight: 700,
+  color: "#111827",
+  margin: 0,
+};
+
+const statLabel = {
+  marginTop: "0.4rem",
+  color: "#4b5563",
+  fontSize: "0.95rem",
+};

@@ -21,6 +21,7 @@ export default function Report() {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false); // for animation
   const [message, setMessage] = useState(null);
 
   function handleChange(e) {
@@ -31,6 +32,7 @@ export default function Report() {
     e.preventDefault();
     setSubmitting(true);
     setMessage(null);
+    setSuccess(false);
 
     try {
       const payload = {
@@ -40,7 +42,7 @@ export default function Report() {
         height: formData.height,
         last_seen_location: formData.last_seen_location,
 
-        // Convert date to ISO string (backend requires DateTime format)
+        // Required ISO format
         last_seen_date: new Date(formData.last_seen_date).toISOString(),
 
         additional_info: formData.description,
@@ -53,7 +55,10 @@ export default function Report() {
       const res = await missingPersonsAPI.create(payload, token);
 
       if (res?.status === 201 || res?.status === 200) {
+        setSuccess(true);
         setMessage({ type: "success", text: "Report submitted successfully." });
+
+        // Reset form
         setFormData({
           full_name: "",
           age: "",
@@ -67,6 +72,11 @@ export default function Report() {
           contact_phone: "",
           case_number: "",
         });
+
+        // Reset button after 2 seconds
+        setTimeout(() => {
+          setSuccess(false);
+        }, 2000);
       } else {
         setMessage({ type: "error", text: "Failed to submit report." });
       }
@@ -250,9 +260,42 @@ export default function Report() {
             required
           />
 
-          {/* BUTTON */}
-          <button className="btn-primary" type="submit" disabled={submitting}>
-            {submitting ? "Submitting…" : "Submit Report"}
+          {/* SUBMIT BUTTON WITH ANIMATION */}
+          <button
+            className="btn-primary"
+            type="submit"
+            disabled={submitting || success}
+            style={{
+              marginTop: "1.5rem",
+              height: "48px",
+              width: success ? "48px" : "auto",
+              padding: success ? "0" : "0 1.2rem",
+              borderRadius: success ? "50%" : "8px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              transition: "all 0.35s ease",
+              background: "#2563eb",
+              color: "white",
+              fontWeight: 600,
+              fontSize: "0.95rem",
+            }}
+          >
+            {success ? (
+              <span
+                style={{
+                  fontSize: "1.3rem",
+                  opacity: success ? 1 : 0,
+                  transition: "opacity 0.4s ease",
+                }}
+              >
+                ✓
+              </span>
+            ) : submitting ? (
+              "Submitting…"
+            ) : (
+              "Submit Report"
+            )}
           </button>
         </form>
       </div>

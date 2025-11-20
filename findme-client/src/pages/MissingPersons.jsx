@@ -146,16 +146,7 @@ function MissingPersons() {
       ) : (
         <div style={gridStyle}>
           {filteredPeople.map((p) => (
-            <PersonCard
-              key={p.id}
-              person={{
-                id: p.id,
-                name: p.full_name,
-                last_seen_location: p.last_seen_location,
-                status: p.status,
-                image_url: p.photo_url,
-              }}
-            />
+            <PersonCard key={p.id} person={p} />
           ))}
         </div>
       )}

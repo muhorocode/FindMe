@@ -1,26 +1,6 @@
 // src/components/EditReportModal.jsx
 import React, { useState } from "react";
 
-/**
- * EditReportModal
- * - Modal overlay with full form matching Report fields.
- * - onSave(updatedReport) - called when user saves.
- * - onClose() - called when user cancels.
- *
- * Fields:
- * Full Name *
- * Age *
- * Gender *
- * Height (optional)
- * Last Seen Location *
- * Last Seen Date *
- * Description (optional)
- * Image URL (optional)
- * Contact Person Name *
- * Contact Person Phone *
- * Case Number *
- */
-
 export default function EditReportModal({ initial, onSave, onClose }) {
   const [form, setForm] = useState({
     id: initial.id,
@@ -29,19 +9,21 @@ export default function EditReportModal({ initial, onSave, onClose }) {
     gender: initial.gender || "",
     height: initial.height || "",
     last_seen_location: initial.last_seen_location || "",
-    last_seen_date: initial.last_seen_date || "",
-    description: initial.description || "",
-    image_url: initial.image_url || "",
+    last_seen_date: initial.last_seen_date?.split("T")[0] || "",
+    status: initial.status || "Missing",
+    photo_url: initial.photo_url || "",
     contact_name: initial.contact_name || "",
     contact_phone: initial.contact_phone || "",
     case_number: initial.case_number || "",
+    description: initial.additional_info || "",
   });
 
   const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [shake, setShake] = useState(false);
 
   function change(e) {
-    const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
+    setForm({ ...form, [e.target.name]: e.target.value });
   }
 
   function validate() {
@@ -55,118 +37,258 @@ export default function EditReportModal({ initial, onSave, onClose }) {
       "contact_phone",
       "case_number",
     ];
-    for (let key of required) {
-      if (!form[key]) return false;
-    }
-    return true;
+    return required.every((k) => form[k]?.toString().trim() !== "");
   }
 
   async function handleSave(e) {
     e.preventDefault();
+
     if (!validate()) {
-      alert("Please fill all required fields.");
+      setShake(true);
+      setTimeout(() => setShake(false), 600);
       return;
     }
 
     setSaving(true);
 
-    // Simulate async save (later replace with real API call)
-    setTimeout(() => {
+    const payload = {
+      id: form.id,
+      height: form.height,
+      last_seen_location: form.last_seen_location,
+      last_seen_date: form.last_seen_date,
+      status: form.status,
+      contact_name: form.contact_name,
+      contact_phone: form.contact_phone,
+      additional_info: form.description,
+    };
+
+    try {
+      const result = await onSave(payload);
+
+      if (result === false) {
+        setSaving(false);
+        setShake(true);
+        setTimeout(() => setShake(false), 600);
+        return;
+      }
+
+      // success animation
+      setSuccess(true);
+      setTimeout(() => {
+        setSuccess(false);
+        onClose();
+      }, 1200);
+    } catch (err) {
       setSaving(false);
-      onSave(form); // pass updated form back to parent
-    }, 600);
+      setShake(true);
+      setTimeout(() => setShake(false), 600);
+    }
   }
 
   return (
     <div
-      role="dialog"
-      aria-modal="true"
+      onClick={onClose}
       style={{
         position: "fixed",
         inset: 0,
+        background: "rgba(0,0,0,0.45)",
+        zIndex: 100,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        zIndex: 60,
-        background: "rgba(15, 23, 42, 0.45)",
-        padding: "2rem",
+        padding: "1rem",
       }}
     >
-      <div style={{ width: "100%", maxWidth: "880px", background: "#fff", borderRadius: "12px", boxShadow: "0 12px 40px rgba(2,6,23,0.35)", overflow: "hidden" }}>
-        <form onSubmit={handleSave}>
-          <div style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid #eef2f6", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div>
-              <h3 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 700, color: "#0f1724" }}>Edit Report</h3>
-              <div style={{ color: "#6b7280", marginTop: "6px" }}>Update the report details and save.</div>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: "100%",
+          maxWidth: "900px",
+          maxHeight: "90vh",
+          background: "#fff",
+          borderRadius: "12px",
+          overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {/* HEADER */}
+        <div
+          style={{
+            padding: "1.2rem 1.5rem",
+            borderBottom: "1px solid #e5e7eb",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 600 }}>
+            Update Report
+          </h2>
+
+          <button
+            onClick={onClose}
+            style={{
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              fontSize: "0.95rem",
+              color: "#555",
+            }}
+          >
+            Close
+          </button>
+        </div>
+
+        {/* IMAGE */}
+        <div
+          style={{
+            padding: "1.4rem",
+            display: "flex",
+            justifyContent: "center",
+            borderBottom: "1px solid #e5e7eb",
+            background: "#f9fafb",
+          }}
+        >
+          {form.photo_url && (
+            <img
+              src={form.photo_url}
+              alt="Missing person"
+              style={{
+                width: "120px",
+                height: "120px",
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+            />
+          )}
+        </div>
+
+        {/* FORM */}
+        <form
+          onSubmit={handleSave}
+          style={{
+            overflowY: "auto",
+            padding: "1.5rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "2rem",
+          }}
+        >
+          {/* IDENTITY DETAILS */}
+          <Section title="Identity Details">
+            <div style={twoColGrid}>
+              <Input label="Full Name *" value={form.full_name} disabled />
+              <Input label="Age *" value={form.age} disabled />
+              <Input label="Gender *" value={form.gender} disabled />
+
+              <Input
+                label="Height (optional)"
+                name="height"
+                value={form.height}
+                onChange={change}
+              />
             </div>
-            <div>
-              <button type="button" onClick={onClose} style={{ background: "transparent", border: "none", fontSize: "0.95rem", color: "#6b7280", cursor: "pointer" }}>
-                Cancel
-              </button>
-            </div>
-          </div>
+          </Section>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", padding: "1.25rem 1.5rem" }}>
-            {/* left column */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              <label style={{ fontSize: "0.9rem", color: "#374151" }}>Full Name *</label>
-              <input name="full_name" value={form.full_name} onChange={change} style={inputStyle} />
+          {/* REPORT DETAILS */}
+          <Section title="Report Details">
+            <div style={twoColGrid}>
+              <Input
+                label="Last Seen Location *"
+                name="last_seen_location"
+                value={form.last_seen_location}
+                onChange={change}
+              />
 
-              <label style={{ fontSize: "0.9rem", color: "#374151", marginTop: "0.5rem" }}>Age *</label>
-              <input name="age" value={form.age} onChange={change} style={inputStyle} inputMode="numeric" />
+              <Input
+                label="Last Seen Date *"
+                type="date"
+                name="last_seen_date"
+                value={form.last_seen_date}
+                onChange={change}
+              />
 
-              <label style={{ fontSize: "0.9rem", color: "#374151", marginTop: "0.5rem" }}>Gender *</label>
-              <select name="gender" value={form.gender} onChange={change} style={selectStyle}>
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-                <option value="Prefer not to say">Prefer not to say</option>
-              </select>
+              <Input label="Case Number *" value={form.case_number} disabled />
 
-              <label style={{ fontSize: "0.9rem", color: "#374151", marginTop: "0.5rem" }}>Height (optional)</label>
-              <input name="height" value={form.height} onChange={change} style={inputStyle} />
-            </div>
-
-            {/* right column */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              <label style={{ fontSize: "0.9rem", color: "#374151" }}>Last Seen Location *</label>
-              <input name="last_seen_location" value={form.last_seen_location} onChange={change} style={inputStyle} />
-
-              <label style={{ fontSize: "0.9rem", color: "#374151", marginTop: "0.5rem" }}>Last Seen Date *</label>
-              <input type="date" name="last_seen_date" value={form.last_seen_date} onChange={change} style={inputStyle} />
-
-              <label style={{ fontSize: "0.9rem", color: "#374151", marginTop: "0.5rem" }}>Case Number *</label>
-              <input name="case_number" value={form.case_number} onChange={change} style={inputStyle} />
-            </div>
-
-            {/* full width description */}
-            <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <label style={{ fontSize: "0.9rem", color: "#374151" }}>Description (optional)</label>
-              <textarea name="description" value={form.description} onChange={change} rows={4} style={{ ...inputStyle, resize: "vertical" }} />
-
-              <label style={{ fontSize: "0.9rem", color: "#374151", marginTop: "0.5rem" }}>Image URL (optional)</label>
-              <input name="image_url" value={form.image_url} onChange={change} style={inputStyle} />
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "0.5rem" }}>
-                <div>
-                  <label style={{ fontSize: "0.9rem", color: "#374151" }}>Contact Person Name *</label>
-                  <input name="contact_name" value={form.contact_name} onChange={change} style={inputStyle} />
-                </div>
-                <div>
-                  <label style={{ fontSize: "0.9rem", color: "#374151" }}>Contact Person Phone *</label>
-                  <input name="contact_phone" value={form.contact_phone} onChange={change} style={inputStyle} />
-                </div>
+              <div>
+                <label style={labelStyle}>Missing Status</label>
+                <select
+                  name="status"
+                  value={form.status}
+                  onChange={change}
+                  style={inputStyle}
+                >
+                  <option value="Missing">Missing</option>
+                  <option value="Found">Found</option>
+                </select>
               </div>
             </div>
-          </div>
+          </Section>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", padding: "1rem 1.5rem", borderTop: "1px solid #eef2f6" }}>
-            <button type="button" onClick={onClose} style={{ background: "#fff", border: "1px solid #e6e9ee", padding: "0.6rem 0.9rem", borderRadius: "8px", cursor: "pointer" }}>
-              Cancel
-            </button>
-            <button type="submit" disabled={saving} style={{ background: "#2563eb", color: "#fff", border: "none", padding: "0.6rem 0.95rem", borderRadius: "8px", cursor: "pointer", fontWeight: 700 }}>
-              {saving ? "Saving…" : "Save changes"}
+          {/* CONTACT DETAILS */}
+          <Section title="Contact Details">
+            <div style={twoColGrid}>
+              <Input
+                label="Contact Person Name *"
+                name="contact_name"
+                value={form.contact_name}
+                onChange={change}
+              />
+              <Input
+                label="Contact Person Phone *"
+                name="contact_phone"
+                value={form.contact_phone}
+                onChange={change}
+              />
+            </div>
+          </Section>
+
+          {/* DESCRIPTION */}
+          <Section title="Description">
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={change}
+              rows={4}
+              style={{ ...inputStyle, resize: "vertical" }}
+            />
+          </Section>
+
+          {/* SUBMIT BUTTON */}
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button
+              type="submit"
+              disabled={saving && !success}
+              style={{
+                ...submitBtn,
+                opacity: saving ? 0.85 : 1,
+                transform: shake ? "translateX(-4px)" : "translateX(0)",
+                transition: "0.2s",
+              }}
+            >
+              {/* Success icon */}
+              {success ? (
+                <span
+                  style={{
+                    width: "18px",
+                    height: "18px",
+                    borderRadius: "50%",
+                    border: "2px solid white",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "white",
+                    fontWeight: "bold",
+                  }}
+                >
+                  ✓
+                </span>
+              ) : saving ? (
+                "Updating…"
+              ) : (
+                "Update"
+              )}
             </button>
           </div>
         </form>
@@ -175,20 +297,76 @@ export default function EditReportModal({ initial, onSave, onClose }) {
   );
 }
 
-// basic inputs
+/* ---------------------------- Components ---------------------------- */
+
+function Section({ title, children }) {
+  return (
+    <div>
+      <h3 style={sectionTitle}>{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function Input({ label, name, value, disabled, onChange, type = "text" }) {
+  return (
+    <div style={{ minWidth: "100%", flex: 1 }}>
+      <label style={labelStyle}>{label}</label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        disabled={disabled}
+        onChange={onChange}
+        style={disabled ? disabledInput : inputStyle}
+      />
+    </div>
+  );
+}
+
+/* ---------------------------- Styles ---------------------------- */
+
+const sectionTitle = {
+  fontSize: "1.05rem",
+  fontWeight: 600,
+  marginBottom: "0.75rem",
+};
+
+const labelStyle = {
+  display: "block",
+  marginBottom: "0.35rem",
+  color: "#374151",
+  fontSize: "0.9rem",
+};
+
+const twoColGrid = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "1rem",
+};
+
 const inputStyle = {
   width: "100%",
   padding: "0.6rem 0.75rem",
   borderRadius: "8px",
-  border: "1px solid #e6e9ee",
+  border: "1px solid #d1d5db",
   fontSize: "0.95rem",
-  boxSizing: "border-box",
 };
 
-const selectStyle = {
+const disabledInput = {
   ...inputStyle,
-  appearance: "none",
-  backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 20 20'%3E%3Cpath fill='%236b7280' d='M5.25 7.5L10 12.25L14.75 7.5H5.25Z'/%3E%3C/svg%3E\")",
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "right 12px center",
+  background: "#f3f4f6",
+  color: "#6b7280",
 };
+
+const submitBtn = {
+  background: "#2563eb",
+  color: "white",
+  padding: "0.7rem 1.4rem",
+  borderRadius: "8px",
+  border: "none",
+  cursor: "pointer",
+  fontWeight: 600,
+  fontSize: "0.95rem",
+};
+
