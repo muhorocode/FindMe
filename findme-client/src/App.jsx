@@ -1,82 +1,83 @@
 // src/App.jsx
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import About from "./pages/About";
+import { useAuth } from "./context/authContext";
+
+// Pages
 import Home from "./pages/Home";
+import About from "./pages/About";
 import MissingPersons from "./pages/MissingPersons";
 import Report from "./pages/Report";
+import MyReports from "./pages/MyReports";
 import PersonDetails from "./pages/PersonDetails";
 import Login from "./pages/Login";
-import MyReports from "./pages/MyReports";
+import Register from "./pages/Register";
 
-import { AuthProvider } from "./context/authContext";
+export default function App() {
+  const { isAuthenticated, initialLoading } = useAuth();
 
-/**
- * App entry component.
- *
- * Notes:
- * - Wraps the entire app in AuthProvider so Navbar and all pages can access auth state.
- * - Keeps routes as before.
- *
- * Developer tip: if you want to *see* Report + My Reports in dev without actually logging in,
- * open the browser console and run:
- *
- *   localStorage.setItem('fm_token', 'DEVTOKEN');
- *
- * then refresh the page. That will make the auth context find a token and attempt to fetch the user.
- * (If your backend isn't running, it may clear the token; for a pure mock, see the Navbar dev shortcut.)
- */
+  // Prevent flicker while checking token
+  if (initialLoading) return <div>Loading…</div>;
 
-function App() {
+  // Wrapper for private routes
+  function ProtectedRoute({ children }) {
+    if (!isAuthenticated) return <Navigate to="/login" replace />;
+    return children;
+  }
+
   return (
-    <AuthProvider>
-      <Router>
-        {/* NAVBAR */}
-        <Navbar />
+    <Router>
+      <Navbar />
 
-        {/* MAIN CONTENT */}
-        <main
-          style={{
-            width: "100%",
-            minHeight: "calc(100vh - 140px)",
-            padding: "2rem 1rem",
-            background: "#f9fafb",
-            boxSizing: "border-box",
-          }}
-        >
-          <Routes>
-            {/* PUBLIC ROUTES */}
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/missing-persons" element={<MissingPersons />} />
-            <Route path="/person/:id" element={<PersonDetails />} />
-            <Route path="/login" element={<Login />} />
+      <Routes>
+        {/* PUBLIC ROUTES */}
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/missing-persons" element={<MissingPersons />} />
 
-            {/* PROTECTED ROUTES (UI only for now) */}
-            <Route path="/report" element={<Report />} />
-            <Route path="/my-reports" element={<MyReports />} />
-          </Routes>
-        </main>
+        {/* AUTH ROUTES */}
+        <Route
+          path="/login"
+          element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
+        />
 
-        {/* FOOTER */}
-        <footer
-          style={{
-            width: "100%",
-            padding: "1rem",
-            textAlign: "center",
-            borderTop: "1px solid #e5e7eb",
-            background: "#ffffff",
-            color: "#6b7280",
-            fontSize: "14px",
-          }}
-        >
-          © {new Date().getFullYear()} FindMe
-        </footer>
-      </Router>
-    </AuthProvider>
+        <Route
+          path="/register"
+          element={isAuthenticated ? <Navigate to="/" replace /> : <Register />}
+        />
+
+        {/* PROTECTED ROUTES */}
+        <Route
+          path="/report"
+          element={
+            <ProtectedRoute>
+              <Report />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/my-reports"
+          element={
+            <ProtectedRoute>
+              <MyReports />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/person/:id"
+          element={
+            <ProtectedRoute>
+              <PersonDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 404 FALLBACK */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
-
-export default App;

@@ -1,54 +1,61 @@
 // src/pages/MyReports.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReportRow from "../components/ReportRow";
 import EditReportModal from "../components/EditReportModal";
-
-/**
- * MyReports page
- * - Shows list of reports (mock data).
- * - Allows View (navigates), Edit (modal), Delete (local state).
- * - Cards are full-width inside a centered page container.
- */
-
-const initialMock = [
-  {
-    id: 101,
-    full_name: "John Doe",
-    age: 32,
-    gender: "Male",
-    height: "180cm",
-    last_seen_location: "Nairobi",
-    last_seen_date: "2025-11-01",
-    description: "Last seen near the city park.",
-    image_url: "",
-    contact_name: "Jane Doe",
-    contact_phone: "0712345678",
-    case_number: "CASE101",
-  },
-  {
-    id: 102,
-    full_name: "Amina Ali",
-    age: 24,
-    gender: "Female",
-    height: "165cm",
-    last_seen_location: "Mombasa",
-    last_seen_date: "2025-10-21",
-    description: "Wearing red scarf.",
-    image_url: "",
-    contact_name: "Fatma Ali",
-    contact_phone: "0701112223",
-    case_number: "CASE102",
-  },
-];
+import { useAuth } from "../context/authContext";
+import { missingPersonsAPI } from "../services/api";
 
 export default function MyReports() {
-  const [reports, setReports] = useState(initialMock);
-  const [editingReport, setEditingReport] = useState(null);
+  const { user, token, isAuthenticated } = useAuth();
 
-  // Delete handler (local state)
-  function handleDelete(id) {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [editingReport, setEditingReport] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function loadMyReports() {
+      setError(null);
+      if (!isAuthenticated) {
+        setReports([]);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const res = await missingPersonsAPI.getMyReports(token);
+        if (res?.status === 200) {
+          // backend returns { success: true, data: [...] } per earlier responses
+          const list = Array.isArray(res.data?.data) ? res.data.data : [];
+          setReports(list);
+        } else {
+          setError("Failed to fetch your reports.");
+        }
+      } catch (err) {
+        console.error(err);
+        setError(err?.response?.data?.error || "Network error");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadMyReports();
+  }, [isAuthenticated, token]);
+
+  // Delete handler (calls backend if authenticated)
+  async function handleDelete(id) {
     if (!window.confirm("Delete this report? This action cannot be undone.")) return;
-    setReports((prev) => prev.filter((r) => r.id !== id));
+    try {
+      if (token) {
+        await missingPersonsAPI.delete(id, token);
+        setReports((prev) => prev.filter((r) => r.id !== id));
+      } else {
+        setReports((prev) => prev.filter((r) => r.id !== id));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Could not delete report. You might not have permissions.");
+    }
   }
 
   // Launch edit modal
@@ -56,15 +63,31 @@ export default function MyReports() {
     setEditingReport(report);
   }
 
-  // Save updates from modal (local state)
-  function handleSave(updated) {
-    setReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
-    setEditingReport(null);
+  // Save updates from modal (attempt backend update if token present)
+  async function handleSave(updated) {
+    try {
+      if (token) {
+        await missingPersonsAPI.update(updated.id, updated, token);
+      }
+      setReports((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+      setEditingReport(null);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save changes.");
+    }
   }
 
   // Cancel edit
   function handleCancelEdit() {
     setEditingReport(null);
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{ padding: "4rem", textAlign: "center" }}>
+        <h2>Please log in to view your reports</h2>
+      </div>
+    );
   }
 
   return (
@@ -84,9 +107,12 @@ export default function MyReports() {
           Manage the missing person reports you have submitted. Edit to update details or delete if needed.
         </p>
 
+        {loading && <div style={{ color: "#374151" }}>Loading…</div>}
+        {error && <div style={{ color: "crimson" }}>{error}</div>}
+
         {/* report list - full-width cards */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          {reports.length === 0 ? (
+          {reports.length === 0 && !loading ? (
             <div style={{ padding: "2rem", textAlign: "center", color: "#6b7280" }}>You haven't submitted any reports yet.</div>
           ) : (
             reports.map((r) => (

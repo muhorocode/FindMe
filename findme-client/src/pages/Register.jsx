@@ -1,13 +1,14 @@
-// src/pages/Login.jsx
+// src/pages/Register.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/authContext";
 
-function Login() {
+function Register() {
   const navigate = useNavigate();
-  const { login, loading } = useAuth();
+  const { register, loading } = useAuth();
 
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
   });
@@ -25,27 +26,42 @@ function Login() {
     e.preventDefault();
     setError(null);
 
-    const result = await login({
+    const result = await register({
+      name: formData.name,
       email: formData.email,
       password: formData.password,
     });
 
     if (!result.success) {
-      setError(result.message || "Login failed");
+      setError(result.message || "Registration failed");
       return;
     }
 
-    // on success, go to home / report
+    // registration successful
     navigate("/report");
   }
 
   return (
     <div style={styles.wrapper}>
       <div style={styles.card}>
-        <h2 style={styles.title}>Login</h2>
-        <p style={styles.subtitle}>Access your account to manage your reports.</p>
+        <h2 style={styles.title}>Create account</h2>
+        <p style={styles.subtitle}>Register to manage your reports and save them to your account.</p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
+          {/* Name */}
+          <div style={styles.field}>
+            <label style={styles.label}>Full name</label>
+            <input
+              type="text"
+              name="name"
+              placeholder="e.g. John Doe"
+              value={formData.name}
+              onChange={handleChange}
+              style={styles.input}
+              required
+            />
+          </div>
+
           {/* Email */}
           <div style={styles.field}>
             <label style={styles.label}>Email</label>
@@ -66,7 +82,7 @@ function Login() {
             <input
               type="password"
               name="password"
-              placeholder="Enter your password"
+              placeholder="Enter a password"
               value={formData.password}
               onChange={handleChange}
               style={styles.input}
@@ -77,30 +93,19 @@ function Login() {
           {error && <div style={{ color: "crimson", marginBottom: "0.5rem" }}>{error}</div>}
 
           <button type="submit" style={styles.button} disabled={loading}>
-            {loading ? "Signing in…" : "Login"}
+            {loading ? "Creating…" : "Register"}
           </button>
         </form>
-
-        {/* Register link */}
-        <p style={styles.register}>
-          Don’t have an account?{" "}
-          <span
-            onClick={() => navigate("/register")}
-            style={styles.registerLink}
-          >
-            Register
-          </span>
-        </p>
       </div>
     </div>
   );
 }
 
-/* --------------------------- STYLES --------------------------- */
+/* reuse styles from Login */
 const styles = {
   wrapper: {
     width: "100%",
-    minHeight: "calc(100vh - 120px)", // accounts for navbar + footer
+    minHeight: "calc(100vh - 120px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -108,7 +113,6 @@ const styles = {
     boxSizing: "border-box",
     background: "#f5f6f7",
   },
-
   card: {
     width: "100%",
     maxWidth: "480px",
@@ -117,38 +121,32 @@ const styles = {
     padding: "2.5rem",
     boxShadow: "0 4px 16px rgba(0,0,0,0.05)",
   },
-
   title: {
     fontSize: "1.75rem",
     fontWeight: 700,
     marginBottom: "0.2rem",
     color: "#111827",
   },
-
   subtitle: {
     fontSize: "0.95rem",
     color: "#6b7280",
     marginBottom: "1.8rem",
   },
-
   form: {
     display: "flex",
     flexDirection: "column",
     gap: "1.2rem",
   },
-
   field: {
     display: "flex",
     flexDirection: "column",
     gap: "0.4rem",
   },
-
   label: {
     fontSize: "0.9rem",
     fontWeight: 600,
     color: "#374151",
   },
-
   input: {
     padding: "0.75rem",
     borderRadius: "8px",
@@ -157,7 +155,6 @@ const styles = {
     outline: "none",
     transition: "0.2s border-color ease",
   },
-
   button: {
     marginTop: "0.5rem",
     width: "100%",
@@ -170,19 +167,6 @@ const styles = {
     fontWeight: 600,
     cursor: "pointer",
   },
-
-  register: {
-    marginTop: "1.4rem",
-    textAlign: "center",
-    fontSize: "0.92rem",
-    color: "#6b7280",
-  },
-
-  registerLink: {
-    color: "#2563eb",
-    cursor: "pointer",
-    fontWeight: 600,
-  },
 };
 
-export default Login;
+export default Register;

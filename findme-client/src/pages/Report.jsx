@@ -1,6 +1,11 @@
+// src/pages/Report.jsx
 import React, { useState } from "react";
+import { useAuth } from "../context/authContext";
+import { missingPersonsAPI } from "../services/api";
 
 export default function Report() {
+  const { user, token } = useAuth();
+
   const [formData, setFormData] = useState({
     full_name: "",
     age: "",
@@ -15,13 +20,65 @@ export default function Report() {
     case_number: "",
   });
 
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState(null);
+
   function handleChange(e) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    console.log("Submitted:", formData);
+    setSubmitting(true);
+    setMessage(null);
+
+    try {
+      const payload = {
+        full_name: formData.full_name,
+        age: Number(formData.age) || null,
+        gender: formData.gender,
+        height: formData.height,
+        last_seen_location: formData.last_seen_location,
+
+        // Convert date to ISO string (backend requires DateTime format)
+        last_seen_date: new Date(formData.last_seen_date).toISOString(),
+
+        additional_info: formData.description,
+        photo_url: formData.image_url,
+        contact_name: formData.contact_name,
+        contact_phone: formData.contact_phone,
+        case_number: formData.case_number,
+      };
+
+      const res = await missingPersonsAPI.create(payload, token);
+
+      if (res?.status === 201 || res?.status === 200) {
+        setMessage({ type: "success", text: "Report submitted successfully." });
+        setFormData({
+          full_name: "",
+          age: "",
+          gender: "",
+          height: "",
+          last_seen_location: "",
+          last_seen_date: "",
+          description: "",
+          image_url: "",
+          contact_name: "",
+          contact_phone: "",
+          case_number: "",
+        });
+      } else {
+        setMessage({ type: "error", text: "Failed to submit report." });
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage({
+        type: "error",
+        text: err?.response?.data?.error || "Network error",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -36,7 +93,6 @@ export default function Report() {
         justifyContent: "center",
       }}
     >
-      {/* WHITE CONTAINER */}
       <div
         style={{
           width: "100%",
@@ -52,6 +108,17 @@ export default function Report() {
           Please fill in the details below to submit a missing person report.
         </p>
 
+        {message && (
+          <div
+            style={{
+              marginBottom: "1rem",
+              color: message.type === "success" ? "green" : "crimson",
+            }}
+          >
+            {message.text}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           {/* FULL NAME */}
           <label className="form-label">Full Name *</label>
@@ -62,6 +129,7 @@ export default function Report() {
             placeholder="e.g. John Doe"
             value={formData.full_name}
             onChange={handleChange}
+            required
           />
 
           {/* AGE */}
@@ -73,6 +141,7 @@ export default function Report() {
             placeholder="e.g. 20"
             value={formData.age}
             onChange={handleChange}
+            required
           />
 
           {/* GENDER */}
@@ -82,6 +151,7 @@ export default function Report() {
             name="gender"
             value={formData.gender}
             onChange={handleChange}
+            required
           >
             <option value="">Select gender</option>
             <option value="Male">Male</option>
@@ -109,6 +179,7 @@ export default function Report() {
             placeholder="e.g. Nairobi"
             value={formData.last_seen_location}
             onChange={handleChange}
+            required
           />
 
           {/* LAST SEEN DATE */}
@@ -119,6 +190,7 @@ export default function Report() {
             name="last_seen_date"
             value={formData.last_seen_date}
             onChange={handleChange}
+            required
           />
 
           {/* DESCRIPTION */}
@@ -151,6 +223,7 @@ export default function Report() {
             placeholder="e.g. Jane Doe"
             value={formData.contact_name}
             onChange={handleChange}
+            required
           />
 
           {/* CONTACT PHONE */}
@@ -162,6 +235,7 @@ export default function Report() {
             placeholder="e.g. 0712345678"
             value={formData.contact_phone}
             onChange={handleChange}
+            required
           />
 
           {/* CASE NUMBER */}
@@ -173,11 +247,12 @@ export default function Report() {
             placeholder="e.g. CASE12345"
             value={formData.case_number}
             onChange={handleChange}
+            required
           />
 
           {/* BUTTON */}
-          <button className="btn-primary" type="submit">
-            Submit Report
+          <button className="btn-primary" type="submit" disabled={submitting}>
+            {submitting ? "Submitting…" : "Submit Report"}
           </button>
         </form>
       </div>

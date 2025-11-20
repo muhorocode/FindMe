@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import PersonCard from "../components/PersonCard";
+import { missingPersonsAPI } from "../services/api";
 
 function MissingPersons() {
   const [people, setPeople] = useState([]);
@@ -7,29 +8,43 @@ function MissingPersons() {
   const [locationFilter, setLocationFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
 
-  // -------------------------------
-  // TEMPORARY DUMMY DATA (same as Home Page)
-  // -------------------------------
-  const dummyData = [
-    { id: 1, name: "John Doe", last_seen_location: "Nairobi", status: "Missing" },
-    { id: 2, name: "Amina Ali", last_seen_location: "Mombasa", status: "Missing" },
-    { id: 3, name: "Samuel W.", last_seen_location: "Kisumu", status: "Missing" },
-    { id: 4, name: "Mary N.", last_seen_location: "Thika", status: "Missing" },
-    { id: 5, name: "Joseph K.", last_seen_location: "Nakuru", status: "Missing" },
-    { id: 6, name: "Fatima O.", last_seen_location: "Eldoret", status: "Missing" },
-    { id: 7, name: "Peter M.", last_seen_location: "Meru", status: "Missing" },
-    { id: 8, name: "Grace A.", last_seen_location: "Machakos", status: "Missing" },
-  ];
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  // Fetch real backend data instead of dummy data
   useEffect(() => {
-    setPeople(dummyData.reverse());
+    async function loadPeople() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await missingPersonsAPI.getAll();
+        if (res.status === 200) {
+          const list = Array.isArray(res.data?.data) ? res.data.data : [];
+
+          // newest first
+          setPeople([...list].reverse());
+        } else {
+          setError("Unable to load missing persons.");
+        }
+      } catch (err) {
+        console.error("Error fetching missing persons:", err);
+        setError("Unable to load missing persons.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadPeople();
   }, []);
 
   // FILTER LOGIC
   const filteredPeople = people.filter((person) => {
     const matchesName =
       searchTerm === "" ||
-      person.name.toLowerCase().includes(searchTerm.toLowerCase());
+      (person.full_name || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
     const matchesLocation =
       locationFilter === "All" ||
@@ -70,7 +85,6 @@ function MissingPersons() {
           alignItems: "center",
         }}
       >
-        {/* Search input */}
         <input
           type="text"
           placeholder="Search by name..."
@@ -86,7 +100,6 @@ function MissingPersons() {
           }}
         />
 
-        {/* LOCATION DROPDOWN WITH PLACEHOLDER */}
         <div style={wrapperStyle}>
           <span style={placeholderLabelStyle}>
             {locationFilter === "All" ? "Filter by Location" : locationFilter}
@@ -108,7 +121,6 @@ function MissingPersons() {
           </select>
         </div>
 
-        {/* STATUS DROPDOWN WITH PLACEHOLDER */}
         <div style={wrapperStyle}>
           <span style={placeholderLabelStyle}>
             {statusFilter === "All" ? "Filter by Status" : statusFilter}
@@ -119,19 +131,31 @@ function MissingPersons() {
             style={selectStyle}
           >
             <option value="All">All</option>
-            <option value="Missing">Missing</option>
-            <option value="Found">Found</option>
+            <option value="missing">Missing</option>
+            <option value="found">Found</option>
+            <option value="closed">Closed</option>
           </select>
         </div>
       </div>
 
-      {/* RESULTS GRID */}
-      {filteredPeople.length === 0 ? (
+      {loading && <p style={{ color: "#4b5563" }}>Loading…</p>}
+      {error && <p style={{ color: "crimson" }}>{error}</p>}
+
+      {filteredPeople.length === 0 && !loading ? (
         <p style={{ color: "#4b5563" }}>No missing persons found.</p>
       ) : (
         <div style={gridStyle}>
           {filteredPeople.map((p) => (
-            <PersonCard key={p.id} person={p} />
+            <PersonCard
+              key={p.id}
+              person={{
+                id: p.id,
+                name: p.full_name,
+                last_seen_location: p.last_seen_location,
+                status: p.status,
+                image_url: p.photo_url,
+              }}
+            />
           ))}
         </div>
       )}
@@ -139,7 +163,7 @@ function MissingPersons() {
   );
 }
 
-// Wrapper that holds text + hidden real select
+// Styles unchanged
 const wrapperStyle = {
   position: "relative",
   width: "180px",
@@ -162,7 +186,7 @@ const selectStyle = {
   borderRadius: "8px",
   border: "1px solid #d1d5db",
   backgroundColor: "#f3f4f6",
-  color: "transparent", // hides text so our custom label shows
+  color: "transparent",
   cursor: "pointer",
   appearance: "none",
   backgroundImage:
