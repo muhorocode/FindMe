@@ -1,10 +1,11 @@
-# app.py
+# app.py - FIXED VERSION
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import timedelta
+import os
 
 from config import config
 from models.db import db, bcrypt
@@ -70,15 +71,105 @@ def create_app(config_name='development'):
     app.register_blueprint(missing_persons_bp)
     app.register_blueprint(search_bp)
 
+    # ✅ ADD MANUAL ROUTES TO ENSURE THEY WORK
+    @app.route("/api/auth/register", methods=['POST'])
+    def manual_register():
+        """Manual register route to ensure it works"""
+        try:
+            from models.user import User
+            data = request.get_json()
+            
+            # ✅ ACCEPT BOTH 'name' AND 'username' FOR FLEXIBILITY
+            name = data.get('name') or data.get('username')
+            email = data.get('email')
+            password = data.get('password')
+            
+            if not name or not email or not password:
+                return jsonify({'error': 'name/username, email and password are required'}), 400
+            
+            # Check if user exists
+            if User.query.filter_by(email=email).first():
+                return jsonify({'error': 'User already exists'}), 400
+            
+            # Create user
+            new_user = User(name=name, email=email)
+            new_user.set_password(password)
+            
+            db.session.add(new_user)
+            db.session.commit()
+            
+            # Generate token
+            token = create_access_token(identity=new_user.id)
+            
+            return jsonify({
+                'message': 'user registered successfully',
+                'token': token,
+                'user_id': new_user.id,
+                'name': new_user.name
+            }), 201
+            
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route("/api/auth/login", methods=['POST'])
+    def manual_login():
+        """Manual login route to ensure it works"""
+        try:
+            from models.user import User
+            data = request.get_json()
+            
+            email = data.get('email')
+            password = data.get('password')
+            
+            if not email or not password:
+                return jsonify({'error': 'email and password are required'}), 400
+            
+            user = User.query.filter_by(email=email).first()
+            
+            if user and user.check_password(password):
+                token = create_access_token(identity=user.id)
+                return jsonify({
+                    'message': 'login successful',
+                    'token': token,
+                    'user_id': user.id,
+                    'name': user.name
+                })
+            else:
+                return jsonify({'error': 'invalid email or password'}), 401
+                
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route("/api/auth/me", methods=['GET'])
+    @jwt_required()
+    def manual_me():
+        """Manual me route to ensure it works"""
+        try:
+            from models.user import User
+            user_id = get_jwt_identity()
+            user = User.query.get(user_id)
+            
+            if user:
+                return jsonify({
+                    'user_id': user.id,
+                    'name': user.name,
+                    'email': user.email
+                })
+            else:
+                return jsonify({'error': 'user not found'}), 404
+                
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     @app.route("/")
     def home():
         return jsonify({
             "message": "FindMe API backend is running",
             "routes": {
                 "auth": [
-                    "/api/auth/register",
-                    "/api/auth/login",
-                    "/api/auth/me"
+                    "POST /api/auth/register",
+                    "POST /api/auth/login", 
+                    "GET /api/auth/me"
                 ],
                 "missing_persons": "/api/missing-persons",
                 "specific_person": "/api/missing-persons/<id>",
@@ -131,4 +222,5 @@ def create_app(config_name='development'):
 if __name__ == "__main__":
     app = create_app("development")
     print("🚀 Starting FindMe server with database initialization...")
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, port=port)
