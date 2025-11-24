@@ -6,13 +6,13 @@ from models.user import User
 
 # create authentication blueprint
 auth_bp = Blueprint('auth', __name__)
-SECRET_KEY = "findme-secret-key-2024"
+SECRET_KEY = "findme-secret-key-2024"  # this secret key signs and verifies jwt tokens
 
 @auth_bp.route('/api/auth/register', methods=['POST'])
 def register():
     """handle user registration with jwt token generation"""
     try:
-        data = request.get_json()
+        data = request.get_json()  # get json data sent in the request
         
         # validate required fields
         if not data.get('name') or not data.get('email') or not data.get('password'):
@@ -28,7 +28,7 @@ def register():
             name=data['name'],
             email=data['email']
         )
-        new_user.set_password(data['password'])
+        new_user.set_password(data['password'])  # hash the password before saving
         
         # save to database
         db.session.add(new_user)
@@ -38,9 +38,10 @@ def register():
         token = jwt.encode({
             'user_id': new_user.id,
             'email': new_user.email,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)  # token expires in 24 hours
         }, SECRET_KEY, algorithm='HS256')
         
+        # send a success message along with the user id and token
         return jsonify({
             'message': 'user registered successfully',
             'user_id': new_user.id,
@@ -48,14 +49,14 @@ def register():
         }), 201
         
     except Exception as e:
-        db.session.rollback()
+        db.session.rollback()  # undo changes if anything goes wrong
         return jsonify({'error': f'registration failed: {str(e)}'}), 500
 
 @auth_bp.route('/api/auth/login', methods=['POST'])
 def login():
     """handle user login and jwt token generation"""
     try:
-        data = request.get_json()
+        data = request.get_json()  # read login data from request
         
         # validate required fields
         if not data.get('email') or not data.get('password'):
@@ -75,6 +76,7 @@ def login():
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
         }, SECRET_KEY, algorithm='HS256')
         
+        # send a success response with user info
         return jsonify({
             'message': 'login successful',
             'user_id': user.id,
@@ -111,6 +113,8 @@ def get_current_user():
         return jsonify(user.to_dict()), 200
         
     except jwt.ExpiredSignatureError:
+        # the token is valid but no longer active
         return jsonify({'error': 'your session has expired, please login again'}), 401
+        
     except jwt.InvalidTokenError:
         return jsonify({'error': 'invalid authentication token'}), 401
