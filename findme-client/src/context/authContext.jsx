@@ -4,13 +4,10 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 /**
  * AuthContext - provides auth state and helper functions.
  *
- * Notes:
- * - Uses import.meta.env.VITE_API_BASE (set in Vite env) or falls back to default backend host.
- * - login() and register() return { success: boolean, message?: string } so views can react (redirect, show toast).
- * - logout() clears token and user.
+ * Uses Render host by default. Keeps tokens in localStorage as "fm_token".
  */
 
-const API_BASE = import.meta.env.VITE_API_BASE || "https://findme-backend-2.onrender.com";
+const API_BASE = "https://findme-l00y.onrender.com";
 
 const AuthContext = createContext(null);
 
@@ -83,7 +80,7 @@ export function AuthProvider({ children }) {
       const json = await res.json();
 
       if (!res.ok) {
-        const message = json?.message || "Login failed";
+        const message = json?.error || json?.message || "Login failed";
         setLoading(false);
         return { success: false, message };
       }
@@ -119,7 +116,7 @@ export function AuthProvider({ children }) {
       const json = await res.json();
 
       if (!res.ok) {
-        const message = json?.message || "Registration failed";
+        const message = json?.error || json?.message || "Registration failed";
         setLoading(false);
         return { success: false, message };
       }

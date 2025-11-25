@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 
 function PersonCard({ person }) {
-
   // Backend fields
   const fullName = person.full_name || "Unknown";
-  const status = (person.status || "Missing").toLowerCase();
+
+  // Use photo_url first, then fall back to image_url (old field)
+  const image = person.photo_url || person.image_url;
+
+  const status = (person.status || "missing").toLowerCase();
   const lastSeen = person.last_seen_location || "Unknown";
 
   const badgeStyle = {
@@ -43,9 +46,9 @@ function PersonCard({ person }) {
           fontSize: "0.9rem",
         }}
       >
-        {person.image_url ? (
+        {image ? (
           <img
-            src={person.image_url}
+            src={image}
             alt={fullName}
             style={{
               width: "100%",

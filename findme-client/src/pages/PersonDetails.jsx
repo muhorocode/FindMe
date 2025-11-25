@@ -1,13 +1,13 @@
+// src/pages/PersonDetails.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { missingPersonsAPI } from "../services/api";
 
 export default function PersonDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [person, setPerson] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const BASE_URL = "http://127.0.0.1:5000";
 
   const dummyFallback = {
     id,
@@ -26,16 +26,15 @@ export default function PersonDetails() {
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       try {
-        const res = await fetch(`${BASE_URL}/missing-persons/${id}`);
-
-        if (!res.ok) {
+        const res = await missingPersonsAPI.getById(id);
+        if (res?.status === 200) {
+          const data = res.data?.data || res.data;
+          setPerson(data || dummyFallback);
+        } else {
           setPerson(dummyFallback);
-          return;
         }
-
-        const data = await res.json();
-        setPerson(Object.keys(data).length === 0 ? dummyFallback : data);
       } catch (err) {
         console.error("Error:", err);
         setPerson(dummyFallback);
@@ -112,7 +111,7 @@ export default function PersonDetails() {
             background: "#f2f2f2",
             borderRadius: "8px",
             marginBottom: "2rem",
-            backgroundImage: `url(${person.image_url})`,
+            backgroundImage: `url(${person.photo_url || person.image_url || ""})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -138,7 +137,7 @@ export default function PersonDetails() {
             <Detail label="Age" value={person.age} />
             <Detail label="Gender" value={person.gender} />
             <Detail label="Height" value={person.height} />
-            <Detail label="Description" value={person.description} />
+            <Detail label="Description" value={person.additional_info || person.description} />
           </div>
 
           <div>
